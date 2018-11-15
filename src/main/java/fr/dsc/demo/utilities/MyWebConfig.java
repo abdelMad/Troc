@@ -10,6 +10,6 @@ public class MyWebConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors (InterceptorRegistry registry) {
 
-        registry.addInterceptor(new LoginInterceptor()).addPathPatterns(new String[] {"/"});
+        registry.addInterceptor(new LoginInterceptor()).addPathPatterns(new String[] {"/","/nouvelle-demande","/nouvelle-proposition","/mes-proposition/envoye","/mes-demandes/envoye"});
     }
 }

@@ -29,7 +29,7 @@ public class LoginController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public String ProcessLogin(@ModelAttribute(value = "utilisateur") Utilisateur utilisateur, HttpServletRequest request) {
-        renderedPage = "redirect:default";
+        renderedPage = "redirect:";
         Utilisateur loggedInUser = utilisateurDao.findByEmailAndMdp(utilisateur.getEmail(), Util.hashString(utilisateur.getMdp()));
         if (loggedInUser != null) {
             request.getSession().setAttribute("utilisateur", loggedInUser);
@@ -56,7 +56,7 @@ public class LoginController {
             renderedPage = "register";
             model.addAttribute("msgError", "tout les champs sont obligatoirs");
         }
-        if ( !utilisateurDao.existsByEmail(utilisateur.getEmail())) {
+        if ( utilisateurDao.existsByEmail(utilisateur.getEmail()) == 0) {
             if (utilisateur.getMdp().equals(utilisateur.getLoginStatus())) {
                 Date now = new Date();
                 utilisateur.setMdp(Util.hashString(utilisateur.getMdp()));
