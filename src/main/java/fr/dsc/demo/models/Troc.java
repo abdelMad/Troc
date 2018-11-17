@@ -14,15 +14,20 @@ public class Troc {
     public static final String OFFRE = "offre";
     @Transient
     public static final String DEMANDE = "demande";
-    private String type;
 
-    @ManyToOne
-    @JoinColumn(name = "message")
-    private Message message;
-    @OneToMany(mappedBy = "offre",fetch = FetchType.EAGER)
+    private String titre;
+    private String type;
+    @OneToMany(mappedBy = "offre")
     private List<Objet> offres;
-    @OneToMany(mappedBy = "demande",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "demande")
     private List<Objet> demandes;
+    private String status;
+    private String msgValid;
+    @ManyToOne
+    private Troc parent;
+
+    @OneToMany(mappedBy="parent",fetch = FetchType.EAGER)
+    private List<Troc> contreProps;
 
 
 

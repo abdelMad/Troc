@@ -23,9 +23,9 @@ public class Utilisateur {
     private String description;
     private String image;
     @OneToMany(mappedBy = "emetteur")
-    private List<Message> messagesEnvoyes;
+    private List<Fichier> messagesEnvoyes;
     @OneToMany(mappedBy = "recepteur")
-    private List<Message> messagesRecus;
+    private List<Fichier> messagesRecus;
 
 
 }

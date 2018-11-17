@@ -1,32 +1,27 @@
 package fr.dsc.demo.controllers;
 
 import fr.dsc.demo.dao.DemandeDao;
+import fr.dsc.demo.dao.FichierDao;
 import fr.dsc.demo.dao.MessageDao;
 import fr.dsc.demo.dao.UtilisateurDao;
 import fr.dsc.demo.models.Demande;
+import fr.dsc.demo.models.Fichier;
 import fr.dsc.demo.models.Message;
 import fr.dsc.demo.models.Utilisateur;
 import fr.dsc.demo.utilities.Util;
 import fr.dsc.demo.utilities.XmlHelper;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class DemandeController {
@@ -38,28 +33,33 @@ public class DemandeController {
     @Autowired
     DemandeDao demandeDao;
 
+    @Autowired
+    FichierDao fichierDao;
+
+    @Autowired
+    XmlHelper xmlHelper;
+
     @RequestMapping(value = "/nouvelle-demande", method = RequestMethod.GET)
     public String renderCreateDemandePage(Model model, HttpServletRequest request) {
-        Message message = new Message();
-        model.addAttribute("msg", message);
-        message.setType(Message.DEMANDE);
-        System.out.println();
+        Fichier fichier = new Fichier();
+        model.addAttribute("fichier", fichier);
+        model.addAttribute("msg", new Message());
 //            System.out.println(ContextLoader.getCurrentWebApplicationContext().getServletContext().getRealPath(""));
         return "nouvelle-demande";
     }
 
     @RequestMapping(value = "/nouvelle-demande", method = RequestMethod.POST)
-    public String createDemande(@ModelAttribute(value = "msg") Message message, HttpServletRequest request,Model model) {
-        if (demandeDao.existsByEmail(message.getRecepteur().getEmail()) == 0) {
+    public String createDemande(@ModelAttribute(value = "fichier") Fichier fichier, @ModelAttribute(value = "msg") Message msg, HttpServletRequest request, Model model) {
+        if (demandeDao.existsByEmail(fichier.getRecepteur().getEmail()) == 0) {
             Utilisateur u = (Utilisateur) request.getSession().getAttribute("utilisateur");
-            if (message.getRecepteur().getEmail().equals(u.getEmail())) {
+            if (fichier.getRecepteur().getEmail().equals(u.getEmail())) {
 
             } else {
                 XmlHelper xmlHelper = new XmlHelper();
 
                 Utilisateur recepteur = new Utilisateur();
                 Date now = new Date();
-                String email = message.getRecepteur().getEmail();
+                String email = fichier.getRecepteur().getEmail();
                 if (utilisateurDao.existsByEmail(email) == 0) {
                     recepteur.setNom(email);
                     recepteur.setPrenom(email);
@@ -69,79 +69,123 @@ public class DemandeController {
                 } else {
                     recepteur = utilisateurDao.findByEmail(email);
                 }
-                message.setRecepteur(recepteur);
-                message.setEmetteur(u);
-                message.setMsgId(Util.generateUniqueToken());
-                message.setDateEnvoie(now);
-                message.setStatus(true);
-                message.setType(Message.DEMANDE);
-                message.getDemande().setDateDebut(now);
-                System.out.println(message.getDemande().getDateFin());
-                message.setDureeValid("20");
+                fichier.setRecepteur(recepteur);
+                fichier.setEmetteur(u);
+                msg.setDateEnvoie(now);
+                msg.setType(Message.DEMANDE);
+                msg.getDemande().setDateDebut(now);
+                List<Message> messages = new ArrayList<>();
+                messages.add(msg);
+                fichier.setMessages(messages);
+
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(now);
                 calendar.add(Calendar.DAY_OF_MONTH, 20);
-                message.setDateExpiration(calendar.getTime());
-                demandeDao.save(message.getDemande());
-                messageDao.save(message);
+                msg.setDateExpiration(calendar.getTime());
+                demandeDao.save(msg.getDemande());
+                fichier.setDateCreation(now);
+                fichierDao.save(fichier);
 
-                String xml = xmlHelper.creerDemandeXml(message);
-                String path = "demande" + message.getDemande().getId() + ".xml";
+                msg.setFichier(fichier);
+                messageDao.save(msg);
+
+                String xml = xmlHelper.creerDemandeXml(fichier);
+                String path = "demande" + fichier.getMessages().get(0).getDemande().getId() + ".xml";
                 xmlHelper.creerFichierXml(path, xml);
             }
 
         } else {
 
         }
-        message = new Message();
-        model.addAttribute("msg", message);
+        fichier = new Fichier();
+        model.addAttribute("fichier", fichier);
         return "nouvelle-demande";
     }
 
     @GetMapping("/mes-demandes/envoye")
-    public String propositionEnvoye(Model model,HttpServletRequest request){
+    public String propositionEnvoye(Model model, HttpServletRequest request) {
         Utilisateur u = (Utilisateur) request.getSession().getAttribute("utilisateur");
-        List<Message> demandes = messageDao.getMessagesEnvoye(u.getEmail(),Message.DEMANDE);
-        System.out.println("size of list: "+demandes.size());
-        model.addAttribute("demandes",demandes);
-        return "sent-demandes";
+        List<Fichier> demandes = fichierDao.getFichiersEnvoye(u.getEmail(), Message.DEMANDE);
+        System.out.println("size of list: " + demandes.size());
+        model.addAttribute("demandes", demandes);
+        model.addAttribute("dmdRecus", false);
+        return "demandes";
+    }
+
+    @GetMapping("/mes-demandes/recus")
+    public String propositionRecus(Model model, HttpServletRequest request) {
+        Utilisateur u = (Utilisateur) request.getSession().getAttribute("utilisateur");
+        List<Fichier> demandes = fichierDao.getFichiersRecus(u.getEmail(), Message.DEMANDE);
+        System.out.println("size of list: " + demandes.size());
+        model.addAttribute("demandes", demandes);
+        model.addAttribute("dmdRecus", true);
+        return "demandes";
     }
 
 
-
     @GetMapping("/process")
-    public String processDemandes(){
+    public String processDemandes() {
         try {
-            XmlHelper xmlHelper = new XmlHelper();
 
             ClassPathResource cpr = new ClassPathResource("/static/imports/");
             ClassPathResource cprXsd = new ClassPathResource("/static/XSD_MTBC.xsd");
             final File folder = cpr.getFile();
             System.out.println(cpr.getPath());
             System.out.println(cpr.getFile().getPath());
-            if(folder.isDirectory()) {
+            if (folder.isDirectory()) {
                 for (final File fileEntry : folder.listFiles()) {
-                    if((int)fileEntry.getTotalSpace() <= Message.MAX_SIZE){
-                        if (xmlHelper.validateAgainstXSD(new DataInputStream(new FileInputStream(fileEntry)), new DataInputStream(new FileInputStream(cprXsd.getFile())))) {
-                            System.out.println("Valiiiiid");
-                            if (xmlHelper.checkNumAuthAndCheckSum(fileEntry.getPath())) {
-                                System.out.println("test passed");
-
-                            }else{
-                                System.out.println("test not passe ...");
-                            }
+                    System.out.println("file name: " + fileEntry.getName());
+                    if ((int) fileEntry.getTotalSpace() <= Message.MAX_SIZE) {
+                        if (fichierDao.existsByFicId(xmlHelper.getFicId(fileEntry.getPath())) == 0) {
+                            if (xmlHelper.validateAgainstXSD(new DataInputStream(new FileInputStream(fileEntry)), new DataInputStream(new FileInputStream(cprXsd.getFile())))) {
+                                System.out.println("Valiiiiid");
+                                if (xmlHelper.checkNumAuthAndCheckSum(fileEntry.getPath())) {
+                                    System.out.println("test passed");
+                                    xmlHelper.processFile(fileEntry.getPath());
+                                } else {
+                                    System.out.println("test not passed ...");
+                                }
+                            } else
+                                System.out.println("not valid :(");
                         }
-                        else
-                            System.out.println("not valid :(");
-                        System.out.println(fileEntry.getName());
                     }
 
                 }
             }
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "process";
+    }
+
+    @RequestMapping(value = "/demande/{action}", method = RequestMethod.POST)
+    public @ResponseBody
+    String processDemande(@RequestBody String dmdId, @PathVariable(value = "action") String action) {
+        if ("accepte".equals(action) || "refuse".equals(action)) {
+            JSONArray jsonArray = new JSONArray(dmdId);
+            dmdId = jsonArray.getString(0);
+            Optional<Demande> dmdOpt = demandeDao.findById(Integer.parseInt(dmdId));
+            if (dmdOpt.isPresent()) {
+                Demande demande = dmdOpt.get();
+                if (action.equals("accepte"))
+                    demande.setAuth(Demande.ACCEPTE);
+                else
+                    demande.setAuth(Demande.REFUSE);
+                demande.setNumAuth(UUID.randomUUID().toString());
+                demandeDao.save(demande);
+                Fichier fichier = fichierDao.getByDemande(demande.getId());
+                fichier.setFicId(Util.generateUniqueToken());
+
+                String xml = xmlHelper.creerAuth(fichier);
+                System.out.println(xml);
+                xmlHelper.creerFichierXml("Auth_" + demande.getAuth() + ".xml", xml);
+                return "[\"ok\"]";
+
+            } else
+                return "[\"ko\"]";
+        }
+        return "[\"ko\"]";
+
     }
 }

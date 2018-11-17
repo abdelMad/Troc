@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -29,7 +29,8 @@
     <![endif]-->
 
     <!-- Google Font -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -43,8 +44,11 @@
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <section class="content-header">
-            <h1>
+            <h1 th:if="${dmdRecus!=true}">
                 Mes Demandes envoyes
+            </h1>
+            <h1 th:if="${dmdRecus ==true}">
+                Mes Demandes recus
             </h1>
         </section>
 
@@ -61,21 +65,43 @@
                         </div>
                         <!-- /.box-header -->
                         <div class="box-body">
-                            <table id="example2" class="table table-bordered table-hover">
+                            <table class="data-table table table-bordered table-hover">
                                 <thead>
                                 <tr>
-                                    <th>Destinataire</th>
+                                    <th th:if="${dmdRecus!=true}">Destinataire</th>
+                                    <th th:if="${dmdRecus==true}">Emetteur</th>
                                     <th>Description</th>
                                     <th>Date debut</th>
                                     <th>Date fin</th>
+                                    <th>Status</th>
+                                    <th th:if="${dmdRecus==true}">Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr th:each="msg : ${demandes}">
-                                    <td th:text="${msg.recepteur.email}"></td>
-                                    <td th:text="${msg.demande.description}"></td>
-                                    <td th:text="${#dates.format(msg.demande.dateDebut, 'dd/MM/yyyy')}"></td>
-                                    <td th:text="${#dates.format(msg.demande.dateFin, 'dd/MM/yyyy')}"></td>
+                                    <td th:if="${dmdRecus!=true}" th:text="${msg.recepteur.email}"></td>
+                                    <td th:if="${dmdRecus==true}" th:text="${msg.emetteur.email}"></td>
+                                    <td th:text="${msg.getMessages().get(0).demande.description}"></td>
+                                    <td th:text="${#dates.format(msg.getMessages().get(0).demande.dateDebut, 'dd/MM/yyyy')}"></td>
+                                    <td th:text="${#dates.format(msg.getMessages().get(0).demande.dateFin, 'dd/MM/yyyy')}"></td>
+                                    <td>
+                                        <p th:if="${msg.getMessages().get(0).demande.auth == '0'}">En Attente de
+                                            validation</p>
+                                        <p th:if="${msg.getMessages().get(0).demande.auth == '1'}">Acceptée</p>
+                                        <p th:if="${msg.getMessages().get(0).demande.auth == '-1'}">Refusée</p>
+                                    </td>
+                                    <td>
+                                        <div th:if="${dmdRecus==true and msg.getMessages().get(0).demande.auth == '0'}">
+                                            <button class="btn btn-success btn-action" data-action="accepte"
+                                                    th:data-dmd-id="${msg.messages.get(0).demande.id}"
+                                                    style="margin-right: 10px"><i class="fa fa-check-square-o"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-action" data-action="refuse"
+                                                    th:data-dmd-id="${msg.messages.get(0).demande.id}">
+                                                <i class="fa fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </td>
 
                                 </tr>
                                 </tbody>
@@ -98,31 +124,7 @@
 </div>
 <!-- ./wrapper -->
 
-<!-- jQuery 3 -->
-<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
-<!-- Bootstrap 3.3.7 -->
-<script src="../../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- FastClick -->
-<script src="../../bower_components/fastclick/lib/fastclick.js"></script>
+<th:block th:include="fragments/js-includes :: js"></th:block>
 
-<script src="../../bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
-<script src="../../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
-<script src="../../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-
-
-<!-- AdminLTE App -->
-<script src="../../dist/js/adminlte.min.js"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="../../dist/js/demo.js"></script>
-<script>
-    $('#example2').DataTable({
-        'paging'      : true,
-        'lengthChange': false,
-        'searching'   : false,
-        'ordering'    : true,
-        'info'        : true,
-        'autoWidth'   : false
-    })
-</script>
 </body>
 </html>

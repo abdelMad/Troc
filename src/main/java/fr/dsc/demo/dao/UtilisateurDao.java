@@ -22,6 +22,6 @@ public interface UtilisateurDao extends CrudRepository<Utilisateur,Integer> {
     @Query("SELECT  u FROM Utilisateur u WHERE u.email = (:email) AND u.mdp = (:mdp)")
     Utilisateur findByEmailAndMdp(@Param("email") String email,@Param("mdp") String mdp);
 
-    @Query("SELECT u FROM Utilisateur u JOIN Message m ON m.recepteur=u JOIN Demande d ON d=m.demande WHERE d.auth='"+Demande.ACCEPTE+"'")
+    @Query("SELECT u FROM Utilisateur u JOIN Fichier f ON f.recepteur=u JOIN Message m ON m.fichier=f JOIN Demande d ON d=m.demande WHERE d.auth='"+Demande.ACCEPTE+"'")
     List<Utilisateur> getUtilisateursAuth();
 }

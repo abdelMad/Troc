@@ -59,7 +59,7 @@
             </div>
             <!-- /.box-header -->
             <!-- form start -->
-            <form role="form" action="#" th:action="@{/nouvelle-demande}" method="post" th:object="${msg}">
+            <form role="form" action="#" th:action="@{/nouvelle-demande}" method="post" th:object="${fichier}">
               <div class="box-body">
                 <div class="form-group">
                   <label for="exampleInputEmail1">Destinataire</label>
@@ -71,13 +71,13 @@
                     <div class="input-group-addon">
                       <i class="fa fa-calendar"></i>
                     </div>
-                    <input type="text" th:field="*{demande.dateFin}" class="form-control pull-right" id="datepicker">
+                    <input type="text" th:object="${msg}" th:field="*{demande.dateFin}" class="form-control pull-right" id="datepicker">
                   </div>
 
                 </div>
                 <div class="form-group">
                   <label>Description</label>
-                  <textarea class="form-control" th:field="*{demande.description}" rows="3" placeholder="Enter ..."></textarea>
+                  <textarea class="form-control" th:object="${msg}" th:field="*{demande.description}" rows="3" placeholder="Enter ..."></textarea>
                 </div>
               </div>
               <!-- /.box-body -->
@@ -104,23 +104,8 @@
 </div>
 <!-- ./wrapper -->
 
-<!-- jQuery 3 -->
-<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
-<!-- Bootstrap 3.3.7 -->
-<script src="../../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-<!-- FastClick -->
-<script src="../../bower_components/fastclick/lib/fastclick.js"></script>
+<th:block th:include="fragments/js-includes :: js"></th:block>
 
-<script src="../../bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
 
-<!-- AdminLTE App -->
-<script src="../../dist/js/adminlte.min.js"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="../../dist/js/demo.js"></script>
-<script>
-    $('#datepicker').datepicker({
-        autoclose: true
-    })
-</script>
 </body>
 </html>

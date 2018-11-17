@@ -6,6 +6,7 @@ import lombok.Data;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -28,27 +29,26 @@ public class Message {
     private String msgId;
     @Column(columnDefinition = "TEXT")
     private String text;
-    @ManyToOne
-    @JoinColumn(name = "emetteur")
-    private Utilisateur emetteur;
-    @ManyToOne
-    @JoinColumn(name = "recepteur")
-    private Utilisateur recepteur;
-    @OneToMany(mappedBy = "message")
-    private List<Troc> troc;
-    private String titreProp;
-    @OneToOne
+    @OneToOne(fetch = FetchType.EAGER)
+    private Troc troc;
+    @OneToOne(fetch = FetchType.EAGER)
     private Demande demande;
+
+    @ManyToOne
+    @JoinColumn(name = "fichier")
+    private Fichier fichier;
     private Date dateEnvoie;
     private String dureeValid;
     private Date dateExpiration;
     // valide ou perime
-    private boolean status = true;
+    private boolean status;
 
-    //demande troc
+    //parmis les 4 en haut
     private String type;
 
     public Message() {
-        msgId = Util.generateUniqueToken();
+        status = true;
+        msgId = UUID.randomUUID().toString();
+        dureeValid = "20";
     }
 }
