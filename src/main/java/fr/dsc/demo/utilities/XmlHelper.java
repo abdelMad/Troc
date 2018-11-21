@@ -59,6 +59,9 @@ public class XmlHelper {
     @Autowired
     private TrocDao trocDao;
 
+    @Autowired
+    private NotifDao notifDao;
+
     private XMLStreamWriter __creerHeadFichier(Fichier fichier, XMLStreamWriter xMLStreamWriter, String numAuth) throws XMLStreamException {
         xMLStreamWriter.writeStartElement("Header");
         xMLStreamWriter.writeStartElement("FicID");
@@ -70,7 +73,7 @@ public class XmlHelper {
         xMLStreamWriter.writeStartElement("NmIR");
         xMLStreamWriter.writeCharacters(fichier.getRecepteur().getNom());
         xMLStreamWriter.writeEndElement();
-        if(numAuth.length()>1) {
+        if (numAuth.length() > 1) {
             xMLStreamWriter.writeStartElement("NumAuto");
             xMLStreamWriter.writeCharacters(numAuth);
             xMLStreamWriter.writeEndElement();
@@ -94,7 +97,7 @@ public class XmlHelper {
 
             xMLStreamWriter.writeStartDocument();
             xMLStreamWriter.writeStartElement("Fichier");
-            __creerHeadFichier(fichier,xMLStreamWriter,"");
+            __creerHeadFichier(fichier, xMLStreamWriter, "");
             /**
              * start of body
              */
@@ -158,7 +161,7 @@ public class XmlHelper {
 
             xMLStreamWriter.writeStartDocument();
             xMLStreamWriter.writeStartElement("Fichier");
-            __creerHeadFichier(fichier,xMLStreamWriter,numAuth);
+            __creerHeadFichier(fichier, xMLStreamWriter, numAuth);
             /**
              * start of body
              */
@@ -248,7 +251,7 @@ public class XmlHelper {
 
             xMLStreamWriter.writeStartDocument();
             xMLStreamWriter.writeStartElement("Fichier");
-            __creerHeadFichier(fichier,xMLStreamWriter,demande.getNumAuth());
+            __creerHeadFichier(fichier, xMLStreamWriter, demande.getNumAuth());
             //start of body
             xMLStreamWriter.writeStartElement("Body");
             //start of colMess
@@ -307,7 +310,7 @@ public class XmlHelper {
 
             xMLStreamWriter.writeStartDocument();
             xMLStreamWriter.writeStartElement("Fichier");
-            __creerHeadFichier(fichier,xMLStreamWriter,demandeDao.getNumAuthByEmail(fichier.getEmetteur().getEmail(),fichier.getRecepteur().getEmail()));
+            __creerHeadFichier(fichier, xMLStreamWriter, demandeDao.getNumAuthByEmail(fichier.getEmetteur().getEmail(), fichier.getRecepteur().getEmail()));
             //start of body
             xMLStreamWriter.writeStartElement("Body");
             //start of colMess
@@ -351,7 +354,8 @@ public class XmlHelper {
 
         return "";
     }
-    public String creerContreProp(Fichier fichier,String numAuth) {
+
+    public String creerReponseProp(Fichier fichier, Fichier newFichier, String numAuth) {
         try {
             StringWriter stringWriter = new StringWriter();
             XMLOutputFactory xMLOutputFactory = XMLOutputFactory.newInstance();
@@ -360,57 +364,64 @@ public class XmlHelper {
 
             xMLStreamWriter.writeStartDocument();
             xMLStreamWriter.writeStartElement("Fichier");
-            __creerHeadFichier(fichier,xMLStreamWriter,numAuth);
+            __creerHeadFichier(newFichier, xMLStreamWriter, numAuth);
             //start of body
             xMLStreamWriter.writeStartElement("Body");
             //start of colMess
-                xMLStreamWriter.writeStartElement("CollMess");
-                    xMLStreamWriter.writeAttribute("NbOfTxs", Integer.toString(fichier.getMessages().size()));
+            xMLStreamWriter.writeStartElement("CollMess");
+            xMLStreamWriter.writeAttribute("NbOfTxs", Integer.toString(fichier.getMessages().size()));
             for (int i = 0; i < fichier.getMessages().size(); i++) {
                 Message message = fichier.getMessages().get(i);
                 xMLStreamWriter.writeStartElement("Message");
-                    xMLStreamWriter.writeAttribute("MsgId", message.getMsgId());
-                    xMLStreamWriter.writeStartElement("Dte");
-                        xMLStreamWriter.writeCharacters(message.getDateEnvoie().toString());
+                xMLStreamWriter.writeAttribute("MsgId", message.getMsgId());
+                xMLStreamWriter.writeStartElement("Dte");
+                xMLStreamWriter.writeCharacters(message.getDateEnvoie().toString());
+                xMLStreamWriter.writeEndElement();
+                xMLStreamWriter.writeStartElement("DureeValideMsg");
+                xMLStreamWriter.writeCharacters(message.getDureeValid());
+                xMLStreamWriter.writeEndElement();
+                xMLStreamWriter.writeStartElement("Accep");
+                if (message.getTroc().getStatus().equals(Troc.MSG)) {
+                    xMLStreamWriter.writeStartElement("MessageValid");
+                    xMLStreamWriter.writeCharacters(message.getTroc().getMsgValid());
                     xMLStreamWriter.writeEndElement();
-                    xMLStreamWriter.writeStartElement("DureeValideMsg");
-                        xMLStreamWriter.writeCharacters(message.getDureeValid());
+                } else if (message.getTroc().getStatus().equals(Troc.CONTRE_PROP)) {
+                    Troc troc = trocDao.getContreProposByPropo(message.getTroc().getId());
+                    xMLStreamWriter.writeStartElement("ContreProp");
+                    xMLStreamWriter.writeStartElement("Prop");
+                    xMLStreamWriter.writeStartElement("TitreP");
+                    xMLStreamWriter.writeCharacters(troc.getTitre());
                     xMLStreamWriter.writeEndElement();
-                    xMLStreamWriter.writeStartElement("Accep");
-                        xMLStreamWriter.writeStartElement("ContreProp");
-                            xMLStreamWriter.writeStartElement("Prop");
-                                xMLStreamWriter.writeStartElement("TitreP");
-                                 xMLStreamWriter.writeCharacters(message.getTroc().getTitre());
-                                xMLStreamWriter.writeEndElement();
-                                List<Objet> listprops;
-                                if (message.getTroc().getType().equals(Troc.OFFRE)) {
-                                    xMLStreamWriter.writeStartElement("Offre");
-                                    listprops = message.getTroc().getOffres();
-                                } else {
-                                    xMLStreamWriter.writeStartElement("Demande");
-                                    listprops = message.getTroc().getDemandes();
-                                }
-                                for (int k = 0; k < listprops.size(); k++) {
-                                    xMLStreamWriter.writeStartElement("Objet");
-                                        xMLStreamWriter.writeStartElement("Type");
-                                            xMLStreamWriter.writeCharacters(listprops.get(k).getType());
-                                        xMLStreamWriter.writeEndElement();
-                                        xMLStreamWriter.writeStartElement("Description");
-                                            xMLStreamWriter.writeStartElement("Parametre");
-                                                xMLStreamWriter.writeStartElement("Nom");
-                                                    xMLStreamWriter.writeCharacters(listprops.get(k).getNom());
-                                                xMLStreamWriter.writeEndElement();
-                                                xMLStreamWriter.writeStartElement("Valeur");
-                                                    xMLStreamWriter.writeCharacters(listprops.get(k).getValeur());
-                                                xMLStreamWriter.writeEndElement();
-                                            xMLStreamWriter.writeEndElement();
-                                        xMLStreamWriter.writeEndElement();
-                                    xMLStreamWriter.writeEndElement();
-                                }
-                                xMLStreamWriter.writeEndElement();
-                            xMLStreamWriter.writeEndElement();
+                    List<Objet> listprops;
+                    if (troc.getType().equals(Troc.OFFRE)) {
+                        xMLStreamWriter.writeStartElement("Offre");
+                        listprops = troc.getOffres();
+                    } else {
+                        xMLStreamWriter.writeStartElement("Demande");
+                        listprops = troc.getDemandes();
+                    }
+                    for (int k = 0; k < listprops.size(); k++) {
+                        xMLStreamWriter.writeStartElement("Objet");
+                        xMLStreamWriter.writeStartElement("Type");
+                        xMLStreamWriter.writeCharacters(listprops.get(k).getType());
                         xMLStreamWriter.writeEndElement();
+                        xMLStreamWriter.writeStartElement("Description");
+                        xMLStreamWriter.writeStartElement("Parametre");
+                        xMLStreamWriter.writeStartElement("Nom");
+                        xMLStreamWriter.writeCharacters(listprops.get(k).getNom());
+                        xMLStreamWriter.writeEndElement();
+                        xMLStreamWriter.writeStartElement("Valeur");
+                        xMLStreamWriter.writeCharacters(listprops.get(k).getValeur());
+                        xMLStreamWriter.writeEndElement();
+                        xMLStreamWriter.writeEndElement();
+                        xMLStreamWriter.writeEndElement();
+                        xMLStreamWriter.writeEndElement();
+                    }
                     xMLStreamWriter.writeEndElement();
+                    xMLStreamWriter.writeEndElement();
+                    xMLStreamWriter.writeEndElement();
+                }
+                xMLStreamWriter.writeEndElement();
                 xMLStreamWriter.writeEndElement();
 
             }
@@ -489,14 +500,30 @@ public class XmlHelper {
             Document document = loadXmlFromPath(xmlPath);
             int checkSum = Integer.parseInt(((Element) document.getElementsByTagName("CollMess").item(0)).getAttribute("NbOfTxs"));
             NodeList messages = document.getElementsByTagName("Message");
-            if (checkSum != messages.getLength())
+            if (checkSum != messages.getLength()) {
+                System.out.println("bnMessage != colmsg");
                 return false;
+            }
+
             if (document.getElementsByTagName("NumAuto").getLength() == 0) {
-                if (messages.getLength() != 1 || document.getElementsByTagName("Dmd").getLength() == 0)
+                if (messages.getLength() != 1 || document.getElementsByTagName("Dmd").getLength() == 0) {
+                    System.out.println("problem num autho");
                     return false;
+                }
             } else {
-                if (document.getElementsByTagName("Dmd").getLength() != 0)
+
+                if (document.getElementsByTagName("Dmd").getLength() != 0) {
+                    System.out.println("cant have num autho in dmd");
                     return false;
+                }
+                if (document.getElementsByTagName("Auth").getLength() == 0) {
+                    String numAuth = demandeDao.getNumAuthByEmail(document.getElementsByTagName("MailDest").item(0).getTextContent(), document.getElementsByTagName("MailExp").item(0).getTextContent());
+                    System.out.println("numAuth: " + numAuth);
+                    if (numAuth == null || numAuth.length() == 0) {
+                        System.out.println("NumAUth non dispo :/ error");
+                        return false;
+                    }
+                }
             }
 
         } catch (Exception e) {
@@ -600,21 +627,38 @@ public class XmlHelper {
                                 fichierDao.save(fichier);
                                 messageDao.save(message);
                                 System.out.println("demande cree");
+                                Notification notification = new Notification();
+                                notification.setMessage("Demande recus de la part de: " + emetMail);
+                                notification.setUrl("/mes-demandes/recus");
+                                notification.setUtilisateur(recepteur);
+                                notifDao.save(notification);
                             }
 
                         } else if (element.getElementsByTagName("Auth").getLength() == 1) {
                             System.out.println("In Auth bloc");
-                            Demande demande = demandeDao.findByMsgId(element.getAttribute("MsgId"));
+                            Demande demande = demandeDao.findByMsgIdAndEmails(element.getAttribute("MsgId"), emetMail);
+                            System.out.println("Msg Id: " + element.getAttribute("MsgId"));
+                            System.out.println("emetMail: " + emetMail);
+                            if (!demande.getAuth().equals("0")) {
+                                System.out.println("**** Auth deja traite *****");
+                                return;
+                            }
                             Element authElement = (Element) element.getElementsByTagName("Auth").item(0);
-                            if (authElement.getElementsByTagName("AccAuth").getLength() != 0) {
+                            if (demande != null && authElement.getElementsByTagName("AccAuth").getLength() != 0) {
                                 demande.setNumAuth(document.getElementsByTagName("NumAuto").item(0).getTextContent());
                                 demande.setAuth(Demande.ACCEPTE);
                             } else if (authElement.getElementsByTagName("RefAuth").getLength() != 0)
                                 demande.setAuth(Demande.REFUSE);
                             demandeDao.save(demande);
                             System.out.println("validation reussie");
+                            Notification notification = new Notification();
+                            notification.setMessage("Votre demande avec " + emetMail + " est " + (demande.getAuth().equals(Demande.ACCEPTE) ? "acceptee" : "refusee"));
+                            notification.setUrl("/mes-demandes/recus");
+                            notification.setUtilisateur(recepteur);
+                            notifDao.save(notification);
+                            return;
 
-                        } else if (element.getElementsByTagName("Prop").getLength() > 0) {
+                        } else if (element.getElementsByTagName("Prop").getLength() > 0 && document.getElementsByTagName("Accep").getLength() == 0) {
                             System.out.println("Im in proposition");
                             message.setType(Message.PROPOSITION);
                             Troc troc = new Troc();
@@ -657,8 +701,78 @@ public class XmlHelper {
                             objetDao.saveAll(objetList);
                             messageDao.save(message);
                             messageList.add(message);
+                            Notification notification = new Notification();
+                            notification.setMessage("Proposition recus de la part de: " + emetMail);
+                            notification.setUrl("/mes-proposition/recus");
+                            notification.setUtilisateur(recepteur);
+                            notifDao.save(notification);
                             System.out.println("Done.");
                         } else if (document.getElementsByTagName("Accep").getLength() > 0) {
+                            Element accep = (Element) document.getElementsByTagName("Accep");
+                            NodeList messageValid = accep.getElementsByTagName("MessageValid");
+                            NodeList contreProp = accep.getElementsByTagName("ContreProp");
+                            Message msgSrc = messageDao.findByMsgId(element.getAttribute("MsgId")).get(0);
+
+                            if (messageValid.getLength() == 1) {
+                                if (msgSrc != null) {
+                                    Troc troc = msgSrc.getTroc();
+                                    troc.setMsgValid(messageValid.item(0).getTextContent());
+                                    troc.setStatus(Troc.MSG);
+                                    trocDao.save(troc);
+                                }
+                            } else if (contreProp.getLength() == 1) {
+                                if (msgSrc != null) {
+                                    System.out.println("Im in proposition");
+                                    message.setType(Message.PROPOSITION);
+                                    Troc troc = new Troc();
+                                    System.out.println(element);
+                                    System.out.println(element.getChildNodes());
+                                    Node propNode = element.getElementsByTagName("Prop").item(0);
+                                    Element propElement = (Element) propNode;
+                                    message.setMsgId(msgSrc.getMsgId());
+                                    troc.setParent(msgSrc.getTroc());
+                                    if (propElement.getElementsByTagName("Demande").getLength() == 1) {
+                                        troc.setType(Troc.DEMANDE);
+                                    } else if (propElement.getElementsByTagName("Offre").getLength() == 1) {
+                                        troc.setType(Troc.OFFRE);
+                                    }
+                                    NodeList objets = propElement.getElementsByTagName("Objet");
+                                    List<Objet> objetList = new ArrayList<>();
+                                    for (int j = 0; j < objets.getLength(); j++) {
+                                        Element objEl = (Element) objets.item(j);
+                                        Objet objet = new Objet();
+                                        objet.setNom(objEl.getElementsByTagName("Nom").item(0).getTextContent());
+                                        objet.setType(objEl.getElementsByTagName("Type").item(0).getTextContent());
+                                        objet.setValeur(objEl.getElementsByTagName("Valeur").item(0).getTextContent());
+                                        if (troc.getType().equals(Troc.OFFRE)) {
+                                            objet.setOffre(troc);
+                                        } else if (Troc.DEMANDE.equals(troc.getType())) {
+                                            objet.setDemande(troc);
+                                        }
+                                        objetList.add(objet);
+                                        System.out.println("Objet creer");
+                                    }
+                                    System.out.println("Il y a nb demande: " + propElement.getElementsByTagName("Demande").getLength());
+                                    System.out.println("Il y a nb Offre: " + propElement.getElementsByTagName("Offre").getLength());
+                                    if (troc.getType().equals(Troc.OFFRE)) {
+                                        troc.setDemandes(objetList);
+                                    } else if (Troc.DEMANDE.equals(troc.getType())) {
+                                        troc.setOffres(objetList);
+                                    }
+                                    fichierDao.save(fichier);
+                                    trocDao.save(troc);
+                                    message.setTroc(troc);
+                                    objetDao.saveAll(objetList);
+                                    messageDao.save(message);
+                                    messageList.add(message);
+                                    Notification notification = new Notification();
+                                    notification.setMessage("vous avez eu une reponse apropos de votre Proposition avec: " + emetMail);
+                                    notification.setUrl("/mes-proposition/envoye");
+                                    notification.setUtilisateur(recepteur);
+                                    notifDao.save(notification);
+                                    System.out.println("Done.");
+                                }
+                            }
 
                         }
                     }

@@ -106,6 +106,10 @@
                                                 <!-- /.box-header -->
                                                 <div class="box-body">
                                                     <div class="form-group">
+                                                        <label>Titre de proposition</label>
+                                                        <input type="text" class="form-control titre-prop">
+                                                    </div>
+                                                    <div class="form-group">
                                                         <label>Type de proposition</label>
                                                         <select class="form-control type-prop">
                                                             <option value="offre">Offre</option>
@@ -176,26 +180,6 @@
 
     <th:block th:include="fragments/footer :: footer"></th:block>
 
-    <div class="modal fade" id="modal-default">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Default Modal</h4>
-                </div>
-                <div class="modal-body">
-                    <p>One fine body&hellip;</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                </div>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </div>
 </div>
 <!-- ./wrapper -->
 
@@ -214,125 +198,6 @@
 <!-- AdminLTE App -->
 <script src="../../dist/js/adminlte.min.js"></script>
 <!-- AdminLTE for demo purposes -->
-<script src="../../dist/js/demo.js"></script>
-<script>
-    jQuery(function ($) {
-        if (localStorage.getItem("successProp") == 1) {
-            $('.alert-row').append(' <div class="alert alert-success alert-dismissible">\n' +
-                '                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>\n' +
-                '                            <h4><i class="icon fa fa-check"></i> Ajout effectue</h4>\n' +
-                '                            vous trouverez les fichiers dans <a href="/mes-proposition/envoye"> preposition envoye</a>\n' +
-                '                        </div>');
-            localStorage.removeItem("successProp");
-            setTimeout(function () {
-                $('.alert-row').children().remove();
-            },4000);
-        }
-        $('#datepicker').datepicker({
-            autoclose: true
-        });
-        //Initialize Select2 Elements
-        $('.select2').select2();
-        var addRowBehaviour = function (e) {
-            e.preventDefault();
-            var $tableBody = $(this).parent().parent().parent();
-            var markup = '<tr class="objet-row">\n' +
-                '                      <td><input class="form-control" value="" ></td>\n' +
-                '                      <td><input class="form-control" value=""></td>\n' +
-                '                      <td>\n' +
-                '                        <input class="form-control" value="">\n' +
-                '                      </td>\n' +
-                '                      <td class="text-center"><button class="badge bg-red btn remove-row-objet">x</button></td>\n' +
-                '                    </tr>';
-            $tableBody.append(markup);
-            $('.remove-row-objet').unbind('click');
-            $('.remove-row-objet').on('click', function (e) {
-                e.preventDefault();
-                $(this).parent().parent().remove();
-            });
-        };
-        $('.add-row-objet').on('click', addRowBehaviour);
-        $('#prop-form').on('submit', function (e) {
-            e.preventDefault();
-            var propositions = [];
-            var destinataire = [];
-            $('.select2-selection__choice').each(function () {
-                destinataire.push($(this).attr('title').trim());
-            });
-            $('.prop-row').each(function () {
-                var objets = [];
-                var typePropo = $(this).find('.type-prop').val();
-
-                $(this).find('.objet-row').each(function () {
-                    var nom = $(this).find('td:eq(0) input').val();
-                    var type = $(this).find('td:eq(1) input').val();
-                    var valeur = $(this).find('td:eq(2) input').val();
-                    if (nom.trim().length && type.trim().length && valeur.trim().length)
-                        objets.push({
-                            nom: nom,
-                            type: type,
-                            valeur: valeur
-                        });
-                });
-                if (typePropo.trim().length && objets.length)
-                    propositions.push({
-                        typePropo: typePropo,
-                        objets: objets
-                    })
-            });
-
-            if (destinataire.length && propositions.length) {
-                var data = JSON.stringify({
-                    destinataires: destinataire,
-                    props: propositions
-                });
-                $.ajax({
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    type: 'post',
-                    url: $(this).attr('action'),
-                    dataType: 'json',
-                    data: data,
-                    cache: false,
-                    success: function (resp) {
-                        if (resp.length && resp[0] == 'ok') {
-                            localStorage.setItem("successProp", 1);
-                            location.reload();
-                        }
-                    },
-                    error: function () {
-                        $.gritter.add({
-                            title: 'Erreur',
-                            text: 'Une erreur est survenu veuillez ressayer plustard',
-                            class_name: 'gritter-green bg-green gritter-right'
-                        });
-                    }
-                });
-            }
-
-        });
-        var $proposition = $('.prop-row').clone();
-        var supprimerRowProp = function () {
-            $(this).parent().parent().parent().parent().parent().remove();
-
-        };
-        $('.sup-prop').on('click', supprimerRowProp);
-        $('#ajout-prop').on('click', function (e) {
-            e.preventDefault();
-            var $propositionClone = $proposition.clone();
-            $propositionClone.find('.sup-prop').on('click', supprimerRowProp);
-            $propositionClone.find('.add-row-objet').on('click', addRowBehaviour);
-            $propositionClone.find('.remove-row-objet').on('click', function (e) {
-                e.preventDefault();
-                $(this).parent().parent().remove();
-            });
-            $('.prop-body').append($propositionClone);
-        });
-
-    });
-
-</script>
+<script src="../../dist/js/script.js"></script>
 </body>
 </html>

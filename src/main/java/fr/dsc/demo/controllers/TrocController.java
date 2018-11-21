@@ -2,7 +2,6 @@ package fr.dsc.demo.controllers;
 
 import fr.dsc.demo.dao.*;
 import fr.dsc.demo.models.*;
-import fr.dsc.demo.utilities.Util;
 import fr.dsc.demo.utilities.XmlHelper;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -39,10 +38,11 @@ public class TrocController {
     XmlHelper xmlHelper;
 
     @GetMapping("/nouvelle-proposition")
-    public String renderCreatePropositionPage(Model model) {
+    public String renderCreatePropositionPage(Model model,HttpServletRequest request) {
         model.addAttribute("contreProp", false);
-
-        model.addAttribute("uAuth", utilisateurDao.getUtilisateursAuth());
+        Utilisateur u = (Utilisateur) request.getSession().getAttribute("utilisateur");
+        model.addAttribute("uAuth", utilisateurDao.getUtilisateursAuth(u.getEmail()));
+//        model.addAttribute("uAuth", utilisateurDao.getUtilisateursAuth());
         return "nouvelle-proposition";
     }
 
@@ -73,13 +73,11 @@ public class TrocController {
             String xml = "";
             for (int j = 0; j < jsonArrayProps.length(); j++) {
                 Troc troc = new Troc();
-
                 System.out.println("props here");
                 String jsonString = jsonArrayProps.get(j).toString();
                 JSONObject prop = new JSONObject(jsonString);
-                System.out.println(jsonString);
-                System.out.println(prop);
 
+                troc.setTitre(prop.get("titrePropo").toString());
                 String type = prop.get("typePropo").toString();
                 System.out.println(type);
                 JSONArray jsonArray = new JSONArray(prop.get("objets").toString());
@@ -104,10 +102,10 @@ public class TrocController {
                 Message message = new Message();
                 message.setDateEnvoie(now);
                 message.setStatus(true);
-                message.setDureeValid("20");
+                message.setDureeValid(Integer.toString(u.getDureeExpirationMsg()));
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(now);
-                calendar.add(Calendar.DAY_OF_MONTH, 20);
+                calendar.add(Calendar.DAY_OF_MONTH, u.getDureeExpirationMsg());
                 message.setDateExpiration(calendar.getTime());
                 message.setType(Message.PROPOSITION);
                 message.setTroc(troc);
@@ -150,96 +148,120 @@ public class TrocController {
         return "props";
     }
 
-    @RequestMapping(value = "/prop/{action}", method = RequestMethod.POST)
-    public @ResponseBody
-    String processProp(@RequestBody String propId, @PathVariable(value = "action") String action) {
-        JSONArray jsonArray = new JSONArray(propId);
-        propId = jsonArray.getString(0);
-        switch (action) {
-            case "accepte":
-                System.out.println("Im in accepte");
-                Optional<Fichier> fichierOpt = fichierDao.findById(Integer.parseInt(propId));
-                if (fichierOpt.isPresent()) {
-                    System.out.println("file found");
-                    Fichier fichier = fichierOpt.get();
-                    fichier.setStatusProp(Demande.ACCEPTE);
-                    fichierDao.save(fichier);
-                    String xml = xmlHelper.creerAccep(fichier);
-                    xmlHelper.creerFichierXml("Acceptation_fichier_" + fichier.getFicId() + ".xml", xml);
-                }
-                break;
-            case "refuse":
-                break;
-            case "forward":
-                break;
-        }
-        return "[\"ok\"]";
-
-    }
-
     @GetMapping("/proposition/repondre/{ficId}")
-    public String contreProp(@PathVariable(value = "ficId") String ficId, Model model) {
+    public String processProp(@PathVariable(value = "ficId") String ficId, Model model) {
         Optional<Fichier> fichierOpt = fichierDao.findById(Integer.parseInt(ficId));
+
         if (fichierOpt.isPresent()) {
             Fichier fichier = fichierOpt.get();
+            if(fichier.isStatusProp())
+                return "redirect:/mes-proposition/recus";
             model.addAttribute("fic", fichier);
             model.addAttribute("contreProp", true);
         }
 
-        return "contre-proposition";
+        return "reponse-proposition";
     }
 
-    @RequestMapping(value = "/contre-proposition", method = RequestMethod.POST)
+    @RequestMapping(value = "/repondre-propositions", method = RequestMethod.POST)
     public @ResponseBody
     String createContreProposition(@RequestBody String propoString, HttpServletRequest request) {
         System.out.println(propoString);
         JSONArray cps = new JSONArray(propoString);
         List<Message> messages = new ArrayList<>();
+        Fichier fichier = new Fichier();
+        Fichier fichierSrc = null;
+        boolean isIn = false;
+        Date now = new Date();
         for (int i = 0; i < cps.length(); i++) {
-            JSONObject contreProp = new JSONObject(cps.get(i).toString());
-            System.out.println("ContreProp: " + contreProp);
-            Troc trocSrc = trocDao.findById(contreProp.getInt("contrePropSrc")).get();
-            Message msgSrc = messageDao.findById(contreProp.getInt("msg")).get();
-            Troc troc = new Troc();
-            troc.setTitre(contreProp.getString("contrePropTitre"));
-            troc.setParent(trocSrc);
+            Message message = new Message();
+            JSONObject reponsesProp = new JSONObject(cps.get(i).toString());
+            if (reponsesProp.getString("propsType").equals("contre-prop")) {
 
-            JSONArray jsonArray = new JSONArray(contreProp.get("contrePropObjets").toString());
-            List<Objet> objetList = new ArrayList<>();
-            for (int j = 0; j < jsonArray.length(); j++) {
-                JSONObject jsonObject = new JSONObject(jsonArray.get(j).toString());
-                Objet objet = new Objet();
-                objet.setNom(jsonObject.get("nom").toString());
-                objet.setType(jsonObject.get("type").toString());
-                objet.setValeur(jsonObject.get("valeur").toString());
-                objet.setOffre(troc);
-                objetList.add(objet);
-            }
-            if (contreProp.getString("typePropo").equals(Troc.DEMANDE)) {
-                troc.setDemandes(objetList);
-                troc.setType(Troc.DEMANDE);
-            } else if (contreProp.getString("typePropo").equals(Troc.OFFRE)) {
-                troc.setOffres(objetList);
-                troc.setType(Troc.OFFRE);
-            }
-            List<Troc> trocs = trocSrc.getContreProps();
-            trocs.add(troc);
-            trocSrc.setStatus("2");
-            trocSrc.setContreProps(trocs);
-            trocDao.save(troc);
-            objetDao.saveAll(objetList);
-            trocDao.save(trocSrc);
-            msgSrc.setTroc(troc);
-            messages.add(msgSrc);
 
+                System.out.println("ContreProp: " + reponsesProp);
+                Troc trocSrc = trocDao.findById(reponsesProp.getInt("contrePropSrc")).get();
+                Message msgSrc = messageDao.findById(reponsesProp.getInt("msg")).get();
+
+                Troc troc = new Troc();
+                troc.setTitre(reponsesProp.getString("contrePropTitre"));
+                troc.setParent(trocSrc);
+                if (!isIn) {
+                    fichierSrc = msgSrc.getFichier();
+                    if(fichierSrc.isStatusProp())
+                        return "[\"ok\"]";
+                    fichierSrc.setStatusProp(true);
+                    fichier.setEmetteur(fichierSrc.getRecepteur());
+                    fichier.setRecepteur(fichierSrc.getEmetteur());
+                    fichierDao.save(fichier);
+                    isIn = true;
+                }
+
+                message.setFichier(fichier);
+
+                JSONArray jsonArray = new JSONArray(reponsesProp.get("contrePropObjets").toString());
+                List<Objet> objetList = new ArrayList<>();
+                for (int j = 0; j < jsonArray.length(); j++) {
+                    JSONObject jsonObject = new JSONObject(jsonArray.get(j).toString());
+                    Objet objet = new Objet();
+                    objet.setNom(jsonObject.get("nom").toString());
+                    objet.setType(jsonObject.get("type").toString());
+                    objet.setValeur(jsonObject.get("valeur").toString());
+                    objet.setOffre(troc);
+                    objetList.add(objet);
+                }
+                if (reponsesProp.getString("typePropo").equals(Troc.DEMANDE)) {
+                    troc.setDemandes(objetList);
+                    troc.setType(Troc.DEMANDE);
+                } else if (reponsesProp.getString("typePropo").equals(Troc.OFFRE)) {
+                    troc.setOffres(objetList);
+                    troc.setType(Troc.OFFRE);
+                }
+                List<Troc> trocs = trocSrc.getContreProps();
+                trocs.add(troc);
+                trocSrc.setStatus(Troc.CONTRE_PROP);
+                trocSrc.setContreProps(trocs);
+                trocDao.save(troc);
+                objetDao.saveAll(objetList);
+                trocDao.save(trocSrc);
+                message.setTroc(troc);
+                message.setType(Message.PROPOSITION);
+                message.setDateEnvoie(now);
+                message.setMsgId(msgSrc.getMsgId());
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(now);
+                calendar.add(Calendar.DAY_OF_MONTH, fichierSrc.getRecepteur().getDureeExpirationMsg());
+                message.setDateExpiration(calendar.getTime());
+                messages.add(message);
+            } else if (reponsesProp.getString("propsType").equals("msg")) {
+                if (!isIn) {
+                    Message msgSrc = messageDao.findById(reponsesProp.getInt("msg")).get();
+                    fichierSrc = msgSrc.getFichier();
+                    if(fichierSrc.isStatusProp())
+                        return "[\"ok\"]";
+                    fichier.setEmetteur(msgSrc.getFichier().getRecepteur());
+                    fichier.setRecepteur(msgSrc.getFichier().getEmetteur());
+                    fichier.setStatusProp(false);
+                    fichierDao.save(fichier);
+                    isIn = true;
+                }
+
+                Troc troc = trocDao.findById(reponsesProp.getInt("propId")).get();
+                troc.setStatus(Troc.MSG);
+                troc.setMsgValid(reponsesProp.getString("msgTxt"));
+            }
 
 
         }
-        Fichier fichier = messages.get(0).getFichier();
-        fichier.setFicId(Util.generateUniqueToken());
+
+        messageDao.saveAll(messages);
         fichier.setMessages(messages);
-        String xml = xmlHelper.creerContreProp(fichier,demandeDao.getNumAuthByEmail(fichier.getRecepteur().getEmail(),fichier.getEmetteur().getEmail()));
-        xmlHelper.creerFichierXml("contreProp_"+fichier.getFicId()+".xml",xml);
+        fichier.setDateCreation(now);
+        fichierDao.save(fichier);
+        if (fichierSrc != null) {
+            String xml = xmlHelper.creerReponseProp(fichierSrc,fichier, demandeDao.getNumAuthByEmail(fichier.getRecepteur().getEmail(), fichier.getEmetteur().getEmail()));
+            xmlHelper.creerFichierXml("contreProp_" + fichier.getFicId() + ".xml", xml);
+        }
         return "[\"ok\"]";
     }
 

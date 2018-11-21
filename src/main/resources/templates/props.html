@@ -44,8 +44,11 @@
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <section class="content-header">
-            <h1>
+            <h1 th:if="${propRecus == false}">
                 Mes Propositions envoyes
+            </h1>
+            <h1 th:if="${propRecus == true}">
+                Mes Propositions recus
             </h1>
         </section>
 
@@ -70,6 +73,7 @@
                                     <th>Nb offre/demande</th>
                                     <th>Date creation</th>
                                     <th>Status</th>
+                                    <th>Type</th>
                                     <th>Actions</th>
                                 </tr>
                                 </thead>
@@ -80,21 +84,25 @@
                                     <td th:text="${msg.getMessages().size()}"></td>
                                     <td th:text="${msg.dateCreation}"></td>
                                     <td>
-                                        <p th:if="${msg.statusProp == '0'}">En Attente de
-                                            validation</p>
-                                        <p th:if="${msg.statusProp == '1'}">Acceptée</p>
-                                        <p th:if="${msg.statusProp == '-1'}">Refusée</p>
+                                        <p th:if="${msg.statusProp == false}">En Attente de
+                                            traitement</p>
+                                        <p th:if="${msg.statusProp == true}">traitée</p>
+                                    </td>
+                                    <td>
+                                        <p th:text="${msg.getMessages().get(0).troc.parent != null ? 'Contre proposition':'proposition'}"></p>
                                     </td>
                                     <td>
                                         <button class="btn btn-info" data-toggle="modal"
-                                                th:data-target="${'#modal'+msg.id}">
+                                                th:data-target="${'#modal'+msg.id}" title="plus de details">
                                             <i class="fa fa-search"></i>
                                         </button>
-                                        <button class="btn btn-default">
+                                        <button class="btn btn-default" title="Telecharger le fichier">
                                             <i class="fa fa-download"></i>
                                         </button>
-                                        <div th:if="${msg.statusProp == '0'}" style="display: inline-block">
-                                            <a class="btn btn-success " title="repondre au proposition" th:href="${'/proposition/repondre/'+msg.id}">
+                                        <div th:if="${propRecus == true and msg.statusProp == false}"
+                                             style="display: inline-block">
+                                            <a class="btn btn-success " title="Repondre au proposition"
+                                               th:href="${'/proposition/repondre/'+msg.id}">
                                                 <i class="fa fa-reply"></i>
                                             </a>
                                         </div>
@@ -126,13 +134,16 @@
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title" th:text="${'Proposition envoye a: '+msg.recepteur.email}"></h4>
+                            <h4 class="modal-title"
+                                th:text="${ propRecus ? 'Proposition recu de la part de: '+msg.emetteur.email :'Proposition envoye a: '+msg.recepteur.email}"></h4>
                         </div>
 
                         <div class="modal-body">
                             <div class="row">
                                 <div class="col-sm-6" th:each="prop : ${msg.messages}">
-                                    <div class="box box-warning box-solid">
+
+                                    <div th:classappend="${prop.troc.status=='2'? 'box-success': (prop.troc.status=='1'? 'box-primary':'box-warning' ) }"
+                                         class="box  box-solid">
                                         <div class="box-header with-border">
                                             <h5 class="box-title"
                                                 th:text="${prop.troc.type.equals(prop.troc.DEMANDE)? 'Demande' : 'Offre'}"></h5>
@@ -164,6 +175,15 @@
                                                     <td th:text="${o.valeur}"></td>
                                                 </tr>
                                                 </tbody>
+                                                <tfoot>
+                                                <td colspan="3" th:if="${prop.troc.status.equals('2')}">
+                                                    <p>Offre traité avec message de validation:</p>
+                                                    <p th:text="${prop.troc.msgValid}" class="well"></p>
+                                                </td>
+                                                <td colspan="3" th:if="${prop.troc.status.equals('1')}">
+                                                    <p>Offre traité avec contre proposition</p>
+                                                </td>
+                                                </tfoot>
                                             </table>
                                         </div>
                                     </div>
@@ -173,17 +193,12 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
-                            <button class="btn btn-success btn-prop-action" data-action="accepte"
-                                    th:data-fic="${msg.id}">
-                                <i class="fa fa-check-square-o"></i>
-                            </button>
-                            <button class="btn btn-warning btn-prop-action" data-action="forward"
-                                    th:data-fic="${msg.id}">
-                                <i class="fa fa-mail-forward"></i>
-                            </button>
-                            <button class="btn btn-danger btn-prop-action" data-action="refuse" th:data-fic="${msg.id}">
-                                <i class="fa fa-times"></i>
-                            </button>
+                            <div th:if="${propRecus == true and msg.statusProp == false}" style="display: inline-block">
+                                <a class="btn btn-success " title="Repondre au proposition"
+                                   th:href="${'/proposition/repondre/'+msg.id}">
+                                    <i class="fa fa-reply"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <!-- /.modal-content -->

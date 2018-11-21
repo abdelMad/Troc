@@ -44,12 +44,24 @@ public class DemandeController {
         Fichier fichier = new Fichier();
         model.addAttribute("fichier", fichier);
         model.addAttribute("msg", new Message());
-//            System.out.println(ContextLoader.getCurrentWebApplicationContext().getServletContext().getRealPath(""));
+
         return "nouvelle-demande";
     }
+    @PostMapping("/check-utilisateur")
+    public @ResponseBody
+    String checkUtilisateur(@RequestBody String email,HttpServletRequest request){
+        if(utilisateurDao.existsByEmail(email).intValue() == 0)
+            return "[\"0\"]";
+        if(!demandeDao.getNumAuthByEmail(((Utilisateur) request.getSession().getAttribute("utilisateur")).getEmail(),utilisateurDao.findByEmail(email).getEmail()).isEmpty())
+            return "[\"-1\"]";
 
-    @RequestMapping(value = "/nouvelle-demande", method = RequestMethod.POST)
+
+        return "[\"1\"]";
+
+    }
+    @PostMapping("/nouvelle-demande")
     public String createDemande(@ModelAttribute(value = "fichier") Fichier fichier, @ModelAttribute(value = "msg") Message msg, HttpServletRequest request, Model model) {
+        String alertMsg = "",alertType = "";
         if (demandeDao.existsByEmail(fichier.getRecepteur().getEmail()) == 0) {
             Utilisateur u = (Utilisateur) request.getSession().getAttribute("utilisateur");
             if (fichier.getRecepteur().getEmail().equals(u.getEmail())) {
@@ -57,17 +69,13 @@ public class DemandeController {
             } else {
                 XmlHelper xmlHelper = new XmlHelper();
 
-                Utilisateur recepteur = new Utilisateur();
+                Utilisateur recepteur = fichier.getRecepteur();
                 Date now = new Date();
-                String email = fichier.getRecepteur().getEmail();
-                if (utilisateurDao.existsByEmail(email) == 0) {
-                    recepteur.setNom(email);
-                    recepteur.setPrenom(email);
-                    recepteur.setEmail(email);
+                if (utilisateurDao.existsByEmail(recepteur.getEmail()) == 0) {
                     recepteur.setMdp(Util.generateUniqueToken());
                     utilisateurDao.save(recepteur);
                 } else {
-                    recepteur = utilisateurDao.findByEmail(email);
+                    recepteur = utilisateurDao.findByEmail(recepteur.getEmail());
                 }
                 fichier.setRecepteur(recepteur);
                 fichier.setEmetteur(u);
@@ -75,12 +83,13 @@ public class DemandeController {
                 msg.setType(Message.DEMANDE);
                 msg.getDemande().setDateDebut(now);
                 List<Message> messages = new ArrayList<>();
+                msg.setDureeValid(Integer.toString(u.getDureeExpirationMsg()));
                 messages.add(msg);
                 fichier.setMessages(messages);
 
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(now);
-                calendar.add(Calendar.DAY_OF_MONTH, 20);
+                calendar.add(Calendar.DAY_OF_MONTH, u.getDureeExpirationMsg());
                 msg.setDateExpiration(calendar.getTime());
                 demandeDao.save(msg.getDemande());
                 fichier.setDateCreation(now);
@@ -92,13 +101,19 @@ public class DemandeController {
                 String xml = xmlHelper.creerDemandeXml(fichier);
                 String path = "demande" + fichier.getMessages().get(0).getDemande().getId() + ".xml";
                 xmlHelper.creerFichierXml(path, xml);
+                alertMsg = "vous trouverez les demandes dans la rubrique: <a href='/mes-demandes/envoye'> demandes envoyées</a>";
+                alertType = "success";
             }
 
         } else {
-
+            alertMsg = "L'utilisateur a déjà accepte une demande et vous pouvez désormais effectuer des trocs avec lui";
+            alertType="error";
         }
-        fichier = new Fichier();
-        model.addAttribute("fichier", fichier);
+        model.addAttribute("fichier", new Fichier());
+        model.addAttribute("msg", new Message());
+        model.addAttribute("showAlert", true);
+        model.addAttribute("alertMsg", alertMsg);
+        model.addAttribute("alertType", alertType);
         return "nouvelle-demande";
     }
 
@@ -123,41 +138,6 @@ public class DemandeController {
     }
 
 
-    @GetMapping("/process")
-    public String processDemandes() {
-        try {
-
-            ClassPathResource cpr = new ClassPathResource("/static/imports/");
-            ClassPathResource cprXsd = new ClassPathResource("/static/XSD_MTBC.xsd");
-            final File folder = cpr.getFile();
-            System.out.println(cpr.getPath());
-            System.out.println(cpr.getFile().getPath());
-            if (folder.isDirectory()) {
-                for (final File fileEntry : folder.listFiles()) {
-                    System.out.println("file name: " + fileEntry.getName());
-                    if ((int) fileEntry.getTotalSpace() <= Message.MAX_SIZE) {
-                        if (fichierDao.existsByFicId(xmlHelper.getFicId(fileEntry.getPath())) == 0) {
-                            if (xmlHelper.validateAgainstXSD(new DataInputStream(new FileInputStream(fileEntry)), new DataInputStream(new FileInputStream(cprXsd.getFile())))) {
-                                System.out.println("Valiiiiid");
-                                if (xmlHelper.checkNumAuthAndCheckSum(fileEntry.getPath())) {
-                                    System.out.println("test passed");
-                                    xmlHelper.processFile(fileEntry.getPath());
-                                } else {
-                                    System.out.println("test not passed ...");
-                                }
-                            } else
-                                System.out.println("not valid :(");
-                        }
-                    }
-
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "process";
-    }
 
     @RequestMapping(value = "/demande/{action}", method = RequestMethod.POST)
     public @ResponseBody

@@ -25,7 +25,6 @@ public class Message {
     @Id
     @GeneratedValue
     private int id;
-    @Column(unique = true)
     private String msgId;
     @Column(columnDefinition = "TEXT")
     private String text;
@@ -48,7 +47,7 @@ public class Message {
 
     public Message() {
         status = true;
-        msgId = UUID.randomUUID().toString();
+        msgId = "m"+UUID.randomUUID().toString();
         dureeValid = "20";
     }
 }

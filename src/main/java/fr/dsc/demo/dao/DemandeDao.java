@@ -17,6 +17,6 @@ public interface DemandeDao extends JpaRepository<Demande,Integer> {
     @Query("SELECT DISTINCT d.numAuth FROM Message m JOIN Fichier f ON m.fichier=f JOIN Demande d  ON m.demande=d JOIN Utilisateur r ON f.recepteur=r JOIN Utilisateur em ON f.emetteur = em WHERE (em.email=(:emetteur) AND r.email=(:recepteur)) OR (r.email=(:emetteur) AND em.email=(:recepteur))")
     String getNumAuthByEmail(@Param("emetteur") String emetteur,@Param("recepteur") String recepteur);
 
-    @Query("SELECT DISTINCT (d) FROM Message m JOIN Demande d ON m.demande=d WHERE  m.msgId=:msgId")
-    Demande findByMsgId(@Param("msgId") String msgId);
+    @Query("SELECT DISTINCT (d) FROM Message m JOIN Demande d ON m.demande=d JOIN Fichier f ON m.fichier=f JOIN Utilisateur ue ON f.emetteur = ue JOIN Utilisateur ur ON f.recepteur = ur WHERE  m.msgId=:msgId AND (ue.email=:emetteur OR ur.email=:emetteur)")
+    Demande findByMsgIdAndEmails(@Param("msgId") String msgId,@Param("emetteur") String emetteur);
 }

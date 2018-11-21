@@ -50,7 +50,7 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                Contre proposition
+                Repondre au proposition(s)
             </h1>
         </section>
 
@@ -118,11 +118,15 @@
                                                             </tbody>
                                                         </table>
                                                     </div>
+                                                    <div class="box-footer">
+                                                        <button class="btn btn-info rep-msg"th:data-target="${'#rep-msg-box-'+prop.troc.id}" >Repondre par message</button>
+                                                        <button class="btn btn-info rep-contre-prop" th:data-target="${'#contre-prop-box-'+prop.troc.id}">Repondre par contre proposition</button>
+                                                    </div>
                                                     <!-- /.box-body -->
                                                 </div>
-                                                <div class="box box-success">
+                                                <div class="box box-success " style="display: none" th:id="${'contre-prop-box-'+prop.troc.id}">
                                                     <div class="box-header with-border">
-                                                        <h4 class="box-title prop-title">Proposition</h4>
+                                                        <h4 class="box-title prop-title">Contre proposition</h4>
                                                     </div>
                                                     <!-- /.box-header -->
                                                     <div class="box-body">
@@ -170,6 +174,19 @@
                                                                 </tbody>
                                                             </table>
 
+                                                        </div>
+                                                    </div>
+                                                    <!-- /.box-body -->
+                                                </div>
+                                                <div class="box box-success " style="display: none" th:id="${'rep-msg-box-'+prop.troc.id}">
+                                                    <div class="box-header with-border">
+                                                        <h4 class="box-title prop-title">Message</h4>
+                                                    </div>
+                                                    <!-- /.box-header -->
+                                                    <div class="box-body">
+                                                        <div class="form-group">
+                                                            <label>Message</label>
+                                                            <input class="form-control prop-msg" type="text">
                                                         </div>
                                                     </div>
                                                     <!-- /.box-body -->

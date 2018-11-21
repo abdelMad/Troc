@@ -27,5 +27,12 @@ public class Utilisateur {
     @OneToMany(mappedBy = "recepteur")
     private List<Fichier> messagesRecus;
 
+    @OneToMany(mappedBy = "utilisateur")
+    private List<Notification> notifications;
+    private int dureeExpirationMsg;
+
+    public Utilisateur (){
+        dureeExpirationMsg = 20;
+    }
 
 }

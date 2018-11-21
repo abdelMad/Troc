@@ -15,6 +15,10 @@ public class Troc {
     @Transient
     public static final String DEMANDE = "demande";
 
+    @Transient
+    public static final String CONTRE_PROP="1";
+    @Transient
+    public static final String MSG = "2";
     private String titre;
     private String type;
     @OneToMany(mappedBy = "offre")
@@ -28,6 +32,8 @@ public class Troc {
 
     @OneToMany(mappedBy="parent",fetch = FetchType.EAGER)
     private List<Troc> contreProps;
+
+    public Troc(){status="0";}
 
 
 

@@ -16,7 +16,7 @@ public class Fichier {
     private int id;
     private String ficId;
 
-    @OneToMany(mappedBy = "fichier",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "fichier", fetch = FetchType.EAGER)
     private List<Message> messages = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -28,10 +28,11 @@ public class Fichier {
 
     private Date dateCreation;
 
-    private String statusProp = "0";
+    private boolean statusProp;
 
 
-    public Fichier(){
-        ficId = Util.generateUniqueToken();
+    public Fichier() {
+        ficId = "f" + Util.generateUniqueToken();
+        statusProp = false;
     }
 }
