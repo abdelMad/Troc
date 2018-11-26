@@ -6,9 +6,7 @@ import fr.dsc.demo.utilities.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -29,7 +27,7 @@ public class LoginController {
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public String ProcessLogin(@ModelAttribute(value = "utilisateur") Utilisateur utilisateur, HttpServletRequest request) {
-        renderedPage = "redirect:default";
+        renderedPage = "redirect:";
         Utilisateur loggedInUser = utilisateurDao.findByEmailAndMdp(utilisateur.getEmail(), Util.hashString(utilisateur.getMdp()));
         if (loggedInUser != null) {
             request.getSession().setAttribute("utilisateur", loggedInUser);
@@ -51,12 +49,12 @@ public class LoginController {
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public String ProcessRegister(@ModelAttribute(value = "utilisateur") Utilisateur utilisateur, HttpServletRequest request, Model model) {
         renderedPage = "redirect:";
-        if(utilisateur.getEmail().isEmpty() || utilisateur.getMdp().isEmpty()|| utilisateur.getNom().isEmpty()
-                || utilisateur.getPrenom().isEmpty() || utilisateur.getLoginStatus().isEmpty()){
+        if (utilisateur.getEmail().isEmpty() || utilisateur.getMdp().isEmpty() || utilisateur.getNom().isEmpty()
+                || utilisateur.getPrenom().isEmpty() || utilisateur.getLoginStatus().isEmpty()) {
             renderedPage = "register";
             model.addAttribute("msgError", "tout les champs sont obligatoirs");
         }
-        if ( !utilisateurDao.existsByEmail(utilisateur.getEmail())) {
+        if (utilisateurDao.existsByEmail(utilisateur.getEmail()) == 0) {
             if (utilisateur.getMdp().equals(utilisateur.getLoginStatus())) {
                 Date now = new Date();
                 utilisateur.setMdp(Util.hashString(utilisateur.getMdp()));
@@ -74,6 +72,15 @@ public class LoginController {
         }
         return renderedPage;
     }
+
+    @GetMapping("/logout")
+    public String deconnexion(HttpServletRequest request) {
+        request.getSession().removeAttribute("utilisateur");
+        return "redirect:/login";
+    }
+
+
+
 
 
 }

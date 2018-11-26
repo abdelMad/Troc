@@ -1,72 +1,53 @@
 package fr.dsc.demo.models;
 
+import fr.dsc.demo.utilities.Util;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
+
+@Data
 @Entity
 public class Message {
+    @Transient
+    public static final String DEMANDE = "Dmd";
+    @Transient
+    public static final String PROPOSITION = "Prop";
+    @Transient
+    public static final String AUTORISATION = "Auth";
+    @Transient
+    public static final String ACCEPTATION = "Accep";
+    @Transient
+    public static final int MAX_SIZE = 40000;
+
     @Id
     @GeneratedValue
     private int id;
+    private String msgId;
     @Column(columnDefinition = "TEXT")
     private String text;
+    @OneToOne(fetch = FetchType.EAGER)
+    private Troc troc;
+    @OneToOne(fetch = FetchType.EAGER)
+    private Demande demande;
+
     @ManyToOne
-    @JoinColumn(name = "emetteur")
-    private Utilisateur emetteur;
-    @ManyToOne
-    @JoinColumn(name = "recepteur")
-    private Utilisateur recepteur;
-    private Date date;
-    private String status;
+    @JoinColumn(name = "fichier")
+    private Fichier fichier;
+    private Date dateEnvoie;
+    private String dureeValid;
+    private Date dateExpiration;
+    // valide ou perime
+    private boolean status;
 
-    public int getId() {
-        return id;
-    }
+    //parmis les 4 en haut
+    private String type;
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public Utilisateur getEmetteur() {
-        return emetteur;
-    }
-
-    public void setEmetteur(Utilisateur emetteur) {
-        this.emetteur = emetteur;
-    }
-
-    public Utilisateur getRecepteur() {
-        return recepteur;
-    }
-
-    public void setRecepteur(Utilisateur recepteur) {
-        this.recepteur = recepteur;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+    public Message() {
+        status = true;
+        msgId = "m"+UUID.randomUUID().toString();
+        dureeValid = "20";
     }
 }

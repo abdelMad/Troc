@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>TROC | Nouvellde proposition</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.7 -->
+    <link rel="stylesheet" href="../../bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../../bower_components/font-awesome/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="../../bower_components/Ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="../../bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet" href="../../bower_components/select2/dist/css/select2.min.css">
+    <link rel="stylesheet" href="../../dist/css/jquery.gritter.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../../dist/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins. Choose a skin from the css/skins
+         folder instead of downloading all of them to reduce the load. -->
+    <link rel="stylesheet" href="../../dist/css/skins/_all-skins.min.css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <!-- Google Font -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+    <style>
+        #form-group .box {
+            background: #d2d6de21;
+        }
+    </style>
+
+    <th:block th:include="fragments/header :: header"></th:block>
+    <!-- Left side column. contains the logo and sidebar -->
+
+    <th:block th:include="fragments/sidebar :: sidebar"></th:block>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                Repondre au proposition(s)
+            </h1>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="row">
+                <!-- left column -->
+                <div class="col-md-10 col-md-offset-1">
+                    <div class="alert-row">
+
+
+                    </div>
+                    <!-- general form elements -->
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h2 class="box-title">Proposition(s)</h2>
+                        </div>
+                        <!-- /.box-header -->
+                        <!-- form start -->
+                        <form role="form" id="contre-prop-form"
+                              action="/nouvelle-proposition" method="post">
+                            <div class="box-body">
+                                <div class="form-group">
+                                    <label>Destinataire:</label>
+                                    <p th:text="${fic.emetteur.email}"></p>
+                                </div>
+                                <div class="prop-body">
+                                    <div class="row prop-row">
+                                        <div class="col-md-8 col-md-offset-2">
+                                            <div class="proposition-row" th:each="prop:${fic.getMessages()}"
+                                                 th:data-prop="${prop.troc.id}" th:data-msg="${prop.id}">
+                                                <div class="box box-success box-solid">
+                                                    <div class="box-header with-border">
+                                                        <h3 class="box-title"
+                                                            th:text="${'Proposition: '+prop.troc.titre}"></h3>
+
+                                                        <div class="box-tools pull-right">
+                                                            <button type="button" class="btn btn-box-tool"
+                                                                    data-widget="collapse"><i
+                                                                    class="fa fa-minus"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="box-body" style="">
+                                                        <table class="table table-bordered">
+                                                            <tbody>
+                                                            <tr>
+                                                                <th>Nom</th>
+                                                                <th>Type</th>
+                                                                <th>Valeur</th>
+                                                            </tr>
+
+                                                            <tr th:each="o : ${prop.troc.offres}">
+                                                                <td th:text="${o.nom}"></td>
+                                                                <td th:text="${o.type}">
+                                                                </td>
+                                                                <td th:text="${o.valeur}"></td>
+                                                            </tr>
+                                                            <tr th:each="o : ${prop.troc.demandes}">
+                                                                <td th:text="${o.nom}"></td>
+                                                                <td th:text="${o.type}">
+                                                                </td>
+                                                                <td th:text="${o.valeur}"></td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <div class="box-footer">
+                                                        <button class="btn btn-info rep-msg"th:data-target="${'#rep-msg-box-'+prop.troc.id}" >Repondre par message</button>
+                                                        <button class="btn btn-info rep-contre-prop" th:data-target="${'#contre-prop-box-'+prop.troc.id}">Repondre par contre proposition</button>
+                                                    </div>
+                                                    <!-- /.box-body -->
+                                                </div>
+                                                <div class="box box-success " style="display: none" th:id="${'contre-prop-box-'+prop.troc.id}">
+                                                    <div class="box-header with-border">
+                                                        <h4 class="box-title prop-title">Contre proposition</h4>
+                                                    </div>
+                                                    <!-- /.box-header -->
+                                                    <div class="box-body">
+                                                        <div class="form-group">
+                                                            <label>Titre de proposition</label>
+                                                            <input class="form-control prop-titre" type="text">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Type de proposition</label>
+                                                            <select class="form-control type-prop">
+                                                                <option value="offre">Offre</option>
+                                                                <option value="demande">Demande</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Objets</label>
+                                                            <table class="table table-bordered prop-table">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>Nom</th>
+                                                                    <th>Type</th>
+                                                                    <th>Valeur</th>
+                                                                    <th style="width: 40px">
+                                                                        <button id=""
+                                                                                class="badge bg-green btn add-row-objet">
+                                                                            +
+                                                                        </button>
+                                                                    </th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                <tr class="objet-row">
+                                                                    <td><input class="form-control" value=""></td>
+                                                                    <td><input class="form-control" value=""></td>
+                                                                    <td>
+                                                                        <input class="form-control" value="">
+                                                                    </td>
+                                                                    <td class="text-center">
+                                                                        <button class="badge bg-red btn remove-row-objet">
+                                                                            x
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                                </tr>
+                                                                </tbody>
+                                                            </table>
+
+                                                        </div>
+                                                    </div>
+                                                    <!-- /.box-body -->
+                                                </div>
+                                                <div class="box box-success " style="display: none" th:id="${'rep-msg-box-'+prop.troc.id}">
+                                                    <div class="box-header with-border">
+                                                        <h4 class="box-title prop-title">Message</h4>
+                                                    </div>
+                                                    <!-- /.box-header -->
+                                                    <div class="box-body">
+                                                        <div class="form-group">
+                                                            <label>Message</label>
+                                                            <input class="form-control prop-msg" type="text">
+                                                        </div>
+                                                    </div>
+                                                    <!-- /.box-body -->
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <!-- /.box-body -->
+
+                            <div class="box-footer">
+                                <input type="hidden" id="fic" th:value="${fic.id}">
+                                <button type="submit" class="btn btn-primary">Confirmer</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- /.box -->
+                </div>
+                <!--/.col (left) -->
+                <!-- right column -->
+                <!--/.col (right) -->
+            </div>
+            <!-- /.row -->
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <th:block th:include="fragments/footer :: footer"></th:block>
+
+    <div class="modal fade" id="modal-default">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Default Modal</h4>
+                </div>
+                <div class="modal-body">
+                    <p>One fine body&hellip;</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+</div>
+<!-- ./wrapper -->
+
+
+<th:block th:include="fragments/js-includes :: js"></th:block>
+
+</body>
+</html>

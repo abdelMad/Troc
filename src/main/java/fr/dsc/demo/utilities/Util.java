@@ -2,6 +2,7 @@ package fr.dsc.demo.utilities;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 public class Util {
 
@@ -32,5 +33,13 @@ public class Util {
         return generatedString;
     }
 
+    /**
+     * Generates a unique token
+     * @return
+     */
+    public static String generateUniqueToken() {
+        UUID uuid = UUID.randomUUID();
+        return hashString(uuid.toString());
+    }
 
 }

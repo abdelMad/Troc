@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="Fichier">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Header"/>
+        <xs:element ref="Body"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Header">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="FicID"/>
+        <xs:element ref="NmIE"/>
+        <xs:element ref="NmIR"/>
+        <xs:element minOccurs="0" ref="NumAuto"/>
+        <xs:element minOccurs="0" ref="DureeValidAuto"/>
+        <xs:element minOccurs="0" ref="MailDest"/>
+        <xs:element minOccurs="0" ref="MailExp"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--
+    Les balises lies  l'autorisation sont optionnelle : 2 cas se presentent :
+    - si il n'y a pas de numero d'autorisation, le message sera forc�ment une demande d'autorisation, sinon le fichier est refus�
+    - sinon on lis les diff�rents messages
+  -->
+  <xs:element name="FicID" type="xs:string"/>
+  <xs:element name="NmIE" type="xs:string"/>
+  <xs:element name="NmIR" type="xs:string"/>
+  <xs:element name="NumAuto" type="xs:string"/>
+  <xs:element name="DtOfSgtAuto" type="xs:string"/>
+  <xs:element name="DureeValidAuto" type="xs:string"/>
+  <xs:element name="MailDest" type="xs:string"/>
+  <xs:element name="MailExp" type="xs:string"/>
+  <xs:element name="Body" type="CollMess"/>
+  <xs:complexType name="CollMess">
+    <xs:sequence>
+      <xs:element ref="CollMess"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="CollMess">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Message"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.CollMess"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.CollMess">
+    <xs:attribute name="NbOfTxs" use="required"/>
+  </xs:attributeGroup>
+  <!-- NbOfTxs sert de contrele pour la collection de messages -->
+  <xs:element name="Message">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Dte"/>
+        <xs:element ref="DureeValideMsg"/>
+        <xs:choice>
+          <xs:element ref="Prop"/>
+          <xs:element ref="Auth"/>
+          <xs:element ref="Dmd"/>
+          <xs:element ref="Accep"/>
+        </xs:choice>
+      </xs:sequence>
+      <xs:attributeGroup ref="attlist.Message"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="attlist.Message">
+    <xs:attribute name="MsgId" use="required" type="xs:ID"/>
+    <xs:attribute name="ReponseA" type="xs:IDREF"/>
+  </xs:attributeGroup>
+  <xs:element name="Dte" type="xs:string"/>
+  <xs:element name="DureeValideMsg" type="xs:string"/>
+  <xs:element name="Prop">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="TitreP"/>
+        <xs:element minOccurs="0" ref="Offre"/>
+        <xs:element minOccurs="0" ref="Demande"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="TitreP" type="xs:string"/>
+  <xs:element name="Offre">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Objet"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Demande">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Objet"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Objet">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Type"/>
+        <xs:element ref="Description"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <!--  Type est la cat�gorie, Description est la description de l'objet du troc -->
+  <xs:element name="Type" type="xs:string"/>
+  <xs:element name="Description">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="Parametre"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Parametre">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Nom"/>
+        <xs:element ref="Valeur"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Nom" type="xs:string"/>
+  <xs:element name="Valeur" type="xs:string"/>
+  <!--  DescDmd : description de la demande, exemple : "je veut troquer avec toi " -->
+  <xs:element name="Dmd">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="DescDmd"/>
+        <xs:element ref="DateDebut"/>
+        <xs:element ref="DateFin"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="DescDmd" type="xs:string"/>
+  <xs:element name="DateDebut" type="xs:string"/>
+  <xs:element name="DateFin" type="xs:string"/>
+  <!-- Cette balise est la reponse  une demande d'autorisation (Dmd) -->
+  <xs:element name="Auth" type="Rep"/>
+  <xs:complexType name="Rep">
+    <xs:sequence>
+      <xs:element ref="Rep"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Rep">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="AccAuth"/>
+        <xs:element ref="RefAuth"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="AccAuth" type="xs:string"/>
+  <xs:element name="RefAuth" type="xs:string"/>
+  <xs:element name="Accep">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element ref="MessageValid"/>
+        <xs:element ref="ContreProp"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="MessageValid" type="xs:string"/>
+  <xs:element name="ContreProp">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="Prop"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

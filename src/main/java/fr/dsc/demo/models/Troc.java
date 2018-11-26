@@ -1,43 +1,40 @@
 package fr.dsc.demo.models;
 
-import javax.persistence.*;
+import lombok.Data;
 
+import javax.persistence.*;
+import java.util.List;
+
+@Data
 @Entity
 public class Troc {
     @Id @GeneratedValue
     private  int id;
+    @Transient
+    public static final String OFFRE = "offre";
+    @Transient
+    public static final String DEMANDE = "demande";
+
+    @Transient
+    public static final String CONTRE_PROP="1";
+    @Transient
+    public static final String MSG = "2";
+    private String titre;
+    private String type;
+    @OneToMany(mappedBy = "offre")
+    private List<Objet> offres;
+    @OneToMany(mappedBy = "demande")
+    private List<Objet> demandes;
+    private String status;
+    private String msgValid;
     @ManyToOne
-    @JoinColumn(name = "emetteur")
-    private Utilisateur emetteur;
-    @ManyToOne
-    @JoinColumn(name = "recepteur")
-    private Utilisateur recepteur;
+    private Troc parent;
 
-    private String image;
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @OneToMany(mappedBy="parent",fetch = FetchType.EAGER)
+    private List<Troc> contreProps;
 
-    public int getId() {
-        return id;
-    }
+    public Troc(){status="0";}
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
-    public Utilisateur getEmetteur() {
-        return emetteur;
-    }
 
-    public void setEmetteur(Utilisateur emetteur) {
-        this.emetteur = emetteur;
-    }
-
-    public Utilisateur getRecepteur() {
-        return recepteur;
-    }
-
-    public void setRecepteur(Utilisateur recepteur) {
-        this.recepteur = recepteur;
-    }
 }

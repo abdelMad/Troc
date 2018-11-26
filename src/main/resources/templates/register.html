@@ -30,7 +30,7 @@
 <body class="hold-transition register-page">
 <div class="register-box">
   <div class="register-logo">
-    <a href="../../index2.html"><b>Admin</b>LTE</a>
+    <a href="../../index2.html"><b>MTBC</b> TROC</a>
   </div>
 
   <div class="register-box-body">
@@ -38,7 +38,11 @@
 
     <form action="#" th:action="@{/register}" th:object="${utilisateur}" method="post">
       <div class="form-group has-feedback">
-        <input type="text" th:field="*{nom}" class="form-control" placeholder="Full name">
+        <input type="text" th:field="*{nom}" class="form-control" placeholder="Nom">
+        <span class="glyphicon glyphicon-user form-control-feedback"></span>
+      </div>
+      <div class="form-group has-feedback">
+        <input type="text" th:field="*{prenom}" class="form-control" placeholder="Prenom">
         <span class="glyphicon glyphicon-user form-control-feedback"></span>
       </div>
       <div class="form-group has-feedback">
@@ -46,11 +50,11 @@
         <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
       </div>
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" th:field="*{mdp}" placeholder="Password">
+        <input type="password" class="form-control" th:field="*{mdp}" placeholder="Mot de passe">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" th:field="*{loginStatus}" placeholder="Retype password">
+        <input type="password" class="form-control" th:field="*{loginStatus}" placeholder="Confirmation mot de passe">
         <span class="glyphicon glyphicon-log-in form-control-feedback"></span>
       </div>
       <div class="row">
@@ -76,7 +80,6 @@
       <!--<a href="#" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-google-plus"></i> Sign up using-->
         <!--Google+</a>-->
     <!--</div>-->
-
     <a href="/login" class="text-center">J'ai deja un compte</a>
   </div>
   <!-- /.form-box -->
