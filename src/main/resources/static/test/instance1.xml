@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Fichier xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="XSD_MTBC.xsd">
+    <Header>
+        <FicID>Fichier ID</FicID>
+        <NmIE>Nom Emetteur</NmIE>
+        <NmIR>Nom recepteur</NmIR>
+    </Header>
+    <Body>
+        <CollMess NbOfTxs="1">
+            <Message MsgId="ID000">
+                <Dte>Dte0</Dte>
+                <DureeValideMsg>DureeValideMsg0</DureeValideMsg>
+                <Dmd>
+                    <DescDmd>DescDmd0</DescDmd>
+                    <DateDebut>DateDebut0</DateDebut>
+                    <DateFin>DateFin0</DateFin>
+                </Dmd>
+            </Message>
+        </CollMess>
+    </Body>
+</Fichier>

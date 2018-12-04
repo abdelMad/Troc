@@ -11,6 +11,8 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public interface NotifDao extends CrudRepository<Notification, Integer> {
 
-    @Query("SELECT (n) FROM Notification n JOIN Utilisateur u ON n.utilisateur=u WHERE u.email=:email")
+    @Query("SELECT (n) FROM Notification n JOIN Utilisateur u ON n.utilisateur=u WHERE u.email=:email ")
     List<Notification> findAllByUtilisateur(@Param("email") String email);
+    @Query("SELECT COUNT (n) FROM Notification n JOIN Utilisateur u ON n.utilisateur=u WHERE u.email=:email AND n.status=false")
+    Integer countUnreadNotifs(@Param("email") String email);
 }

@@ -25,6 +25,7 @@ public class LoginInterceptor extends HandlerInterceptorAdapter {
         }
         System.out.println(notifDao == null);
         request.getSession().setAttribute("notifs", notifDao.findAllByUtilisateur(u.getEmail()));
+        request.getSession().setAttribute("notifsCount", notifDao.countUnreadNotifs(u.getEmail()));
         System.out.println("Im in interceptor");
         return true;
     }

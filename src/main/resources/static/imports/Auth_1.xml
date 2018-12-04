@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Fichier>
+    <Header>
+        <FicID>596df205f8234baa243f3f1349eda01a47</FicID>
+        <NmIE>btata</NmIE>
+        <NmIR>MADIH</NmIR>
+        <NumAuto>j49fjf9-c49d-4902-96b2-6ac732bf8db0</NumAuto>
+        <MailDest>abdelmoghit.madih@gmail.com</MailDest>
+        <MailExp>btata@gmail.com</MailExp>
+    </Header>
+    <Body>
+        <CollMess NbOfTxs="1">
+            <Message MsgId="m2df61723-f163-4f02-af92-ede17d8996a0">
+                <Dte>21/11/2018</Dte>
+                <DureeValideMsg>20</DureeValideMsg>
+                <Auth>
+                    <Rep>
+                        <AccAuth>Demande accepte bb</AccAuth>
+                    </Rep>
+                </Auth>
+            </Message>
+        </CollMess>
+    </Body>
+</Fichier>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Fichier>
+    <Header>
+        <FicID>e52eec9b7b2ea508e29491dchg</FicID>
+        <NmIE>bubu</NmIE>
+        <NmIR>MADIH</NmIR>
+        <NumAuto>ad23468b-f4ec-40a7-b2k3-4208efbc8472</NumAuto>
+        <MailDest>abdelmoghit.madih@gmail.com</MailDest>
+        <MailExp>bubu@gmail.com</MailExp>
+    </Header>
+    <Body>
+        <CollMess NbOfTxs="2">
+            <Message MsgId="b50ce58d1095dcf7d7f293b8545cb79d">
+                <Dte>15/11/2018</Dte>
+                <DureeValideMsg>20</DureeValideMsg>
+                <Prop>
+                    <TitreP/>
+                    <Offre>
+                        <Objet>
+                            <Type>test</Type>
+                            <Description>
+                                <Parametre>
+                                    <Nom>test</Nom>
+                                    <Valeur>20</Valeur>
+                                </Parametre>
+                            </Description>
+                        </Objet>
+                    </Offre>
+                </Prop>
+            </Message>
+            <Message MsgId="f640d7344ccbf625d1bd20e34egc9a32">
+                <Dte>15/11/2018</Dte>
+                <DureeValideMsg>20</DureeValideMsg>
+                <Prop>
+                    <TitreP/>
+                    <Demande>
+                        <Objet>
+                            <Type>chat</Type>
+                            <Description>
+                                <Parametre>
+                                    <Nom>oussama</Nom>
+                                    <Valeur>40</Valeur>
+                                </Parametre>
+                            </Description>
+                        </Objet>
+                    </Demande>
+                </Prop>
+            </Message>
+        </CollMess>
+    </Body>
+</Fichier>

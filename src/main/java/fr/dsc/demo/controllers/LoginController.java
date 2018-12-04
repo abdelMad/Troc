@@ -3,6 +3,7 @@ package fr.dsc.demo.controllers;
 import fr.dsc.demo.dao.UtilisateurDao;
 import fr.dsc.demo.models.Utilisateur;
 import fr.dsc.demo.utilities.Util;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,6 +50,7 @@ public class LoginController {
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public String ProcessRegister(@ModelAttribute(value = "utilisateur") Utilisateur utilisateur, HttpServletRequest request, Model model) {
         renderedPage = "redirect:";
+
         if (utilisateur.getEmail().isEmpty() || utilisateur.getMdp().isEmpty() || utilisateur.getNom().isEmpty()
                 || utilisateur.getPrenom().isEmpty() || utilisateur.getLoginStatus().isEmpty()) {
             renderedPage = "register";
@@ -79,8 +81,30 @@ public class LoginController {
         return "redirect:/login";
     }
 
+    @GetMapping("/forgot-password")
+    public String renderForgotPwd() {
 
+        return "mdp-oublie.html";
+    }
 
+    @PostMapping("/forgot-password")
+    public @ResponseBody
+    String forgotPwd(@RequestBody String jsonString) {
+        System.out.println(jsonString);
+        JSONObject jsonObject = new JSONObject(jsonString);
+        Utilisateur utilisateur = utilisateurDao.findByEmail(jsonObject.get("email").toString());
+        if (utilisateur == null)
+            return "[\"mailNotFound\"]";
+
+        if (!jsonObject.get("pwd").toString().equals(jsonObject.get("confPwd").toString()))
+            return "[\"pwdNotMatch\"]";
+
+        utilisateur.setMdp(Util.hashString(jsonObject.get("pwd").toString()));
+
+        utilisateurDao.save(utilisateur);
+
+        return "[\"ok\"]";
+    }
 
 
 }

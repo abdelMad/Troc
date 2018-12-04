@@ -23,9 +23,7 @@ public class ImportFichiersScheduler {
 
     @Scheduled(fixedRate = 30000)
     public void process() {
-        System.out.println("Im here hahahahoho " + (cpt++));
         try {
-
             ClassPathResource cpr = new ClassPathResource("/static/imports/");
             ClassPathResource cprXsd = new ClassPathResource("/static/XSD_MTBC.xsd");
             final File folder = cpr.getFile();

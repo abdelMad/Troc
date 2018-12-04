@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Fichier>
+    <Header>
+        <FicID>e52eec9b7b2ea508e29491dchg</FicID>
+        <NmIE>Bubu</NmIE>
+        <NmIR>MADIH</NmIR>
+        <MailDest>abdelmoghit.madih@gmail.com</MailDest>
+        <MailExp>bubu@gmail.com</MailExp>
+    </Header>
+    <Body>
+        <CollMess NbOfTxs="1">
+            <Message MsgId="b53902e28df0bc91c62477763ee8d26">
+                <Dte>Mon Nov 12 15:47:22 CET 2018</Dte>
+                <DureeValideMsg>20</DureeValideMsg>
+                <Dmd>
+                    <DescDmd>hahahaha</DescDmd>
+                    <DateDebut>Mon Nov 12 15:47:22 CET 2018</DateDebut>
+                    <DateFin>Fri Nov 30 00:00:00 CET 2018</DateFin>
+                </Dmd>
+            </Message>
+        </CollMess>
+    </Body>
+</Fichier>

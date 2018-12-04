@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Fichier xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../XSD_MTBC.xsd">
+    <Header>
+        <FicID>db9x371xd4xba33x469a574ae847f845</FicID>
+        <NmIE>bubu@gmail.com</NmIE>
+        <NmIR>MADIH</NmIR>
+        <NumAuto>ad23468b-f4ec-40a7-b2k3-4208efbc8472</NumAuto>
+        <MailDest>abdelmoghit.madih@gmail.com</MailDest>
+        <MailExp>bubu@gmail.com</MailExp>
+    </Header>
+    <Body>
+        <CollMess NbOfTxs="1">
+            <Message MsgId="f640d7344ccbf625d1bd20e34eac9a32">
+                <Dte>12/11/2018</Dte>
+                <DureeValideMsg>20</DureeValideMsg>
+                <Auth>
+                    <Rep>
+                        <!--You have a CHOICE of the next 2 items at this level-->
+                        <AccAuth>string</AccAuth>
+                    </Rep>
+                </Auth>
+            </Message>
+        </CollMess>
+    </Body>
+</Fichier>

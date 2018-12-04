@@ -554,6 +554,8 @@ public class XmlHelper {
                 Utilisateur recepteur = utilisateurDao.findByEmail(recepMail);
                 System.out.println("Emeteur: " + emetMail);
                 System.out.println("Recepteur: " + recepMail);
+                System.out.println("emeteur is null?: "+(emetteur == null));
+                System.out.println("recepteur is null?: "+(recepteur == null));
                 if (emetteur == null) {
                     emetteur = new Utilisateur();
                     emetteur.setNom(document.getElementsByTagName("NmIE").item(0).getTextContent());
@@ -561,31 +563,26 @@ public class XmlHelper {
                     emetteur.setPrenom(" ");
                     emetteur.setMdp(Util.generateUniqueToken());
                     emetteur.setRegisterDate(new Date());
-                    utilisateurDao.save(emetteur);
                 }
                 if (recepteur == null) {
                     recepteur = new Utilisateur();
                     recepteur.setNom(document.getElementsByTagName("NmIR").item(0).getTextContent());
-                    recepteur.setEmail(emetMail);
+                    recepteur.setEmail(recepMail);
                     recepteur.setPrenom(" ");
                     recepteur.setMdp(Util.generateUniqueToken());
                     recepteur.setRegisterDate(new Date());
 
-                    utilisateurDao.save(recepteur);
                 }
                 NodeList messages = document.getElementsByTagName("Message");
                 Date now = new Date();
-                SimpleDateFormat sDate = new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat sDate;
                 Calendar calendar = Calendar.getInstance();
 
 
                 Fichier fichier = new Fichier();
-                fichier.setEmetteur(emetteur);
-                fichier.setRecepteur(recepteur);
                 fichier.setFicId(document.getElementsByTagName("FicID").item(0).getTextContent());
                 fichier.setDateCreation(now);
-                fichier.setEmetteur(emetteur);
-                fichier.setRecepteur(recepteur);
+
 
                 List<Message> messageList = new ArrayList<>();
                 for (int i = 0; i < messages.getLength(); i++) {
@@ -599,6 +596,7 @@ public class XmlHelper {
                         message.setFichier(fichier);
                         message.setMsgId(((Element) document.getElementsByTagName("FicID").item(0)).getAttribute("MsgId"));
                         message.setDureeValid(document.getElementsByTagName("DureeValideMsg").item(0).getTextContent());
+                        sDate = new SimpleDateFormat(Util.determineDateFormat(((Element) node).getElementsByTagName("Dte").item(0).getTextContent()));
                         Date dateEnvoie = sDate.parse(((Element) node).getElementsByTagName("Dte").item(0).getTextContent());
                         message.setDateEnvoie(dateEnvoie);
                         calendar.setTime(dateEnvoie);
@@ -619,7 +617,9 @@ public class XmlHelper {
                                 Demande demande = new Demande();
 
                                 message.setType(Message.DEMANDE);
+                                sDate = new SimpleDateFormat(Util.determineDateFormat(dateDebut));
                                 demande.setDateDebut(sDate.parse(dateDebut));
+                                sDate = new SimpleDateFormat(Util.determineDateFormat(dateFin));
                                 demande.setDateFin(sDate.parse(dateFin));
                                 demande.setDescription(descCmd);
                                 message.setDemande(demande);
@@ -631,6 +631,8 @@ public class XmlHelper {
                                 notification.setMessage("Demande recus de la part de: " + emetMail);
                                 notification.setUrl("/mes-demandes/recus");
                                 notification.setUtilisateur(recepteur);
+                                utilisateurDao.save(recepteur);
+                                utilisateurDao.save(emetteur);
                                 notifDao.save(notification);
                             }
 
@@ -639,12 +641,16 @@ public class XmlHelper {
                             Demande demande = demandeDao.findByMsgIdAndEmails(element.getAttribute("MsgId"), emetMail);
                             System.out.println("Msg Id: " + element.getAttribute("MsgId"));
                             System.out.println("emetMail: " + emetMail);
+                            if(demande == null) {
+                                System.out.println("demande n existe pas pour pouvoir l accepter");
+                                return;
+                            }
                             if (!demande.getAuth().equals("0")) {
                                 System.out.println("**** Auth deja traite *****");
                                 return;
                             }
                             Element authElement = (Element) element.getElementsByTagName("Auth").item(0);
-                            if (demande != null && authElement.getElementsByTagName("AccAuth").getLength() != 0) {
+                            if ( authElement.getElementsByTagName("AccAuth").getLength() != 0) {
                                 demande.setNumAuth(document.getElementsByTagName("NumAuto").item(0).getTextContent());
                                 demande.setAuth(Demande.ACCEPTE);
                             } else if (authElement.getElementsByTagName("RefAuth").getLength() != 0)
@@ -655,6 +661,8 @@ public class XmlHelper {
                             notification.setMessage("Votre demande avec " + emetMail + " est " + (demande.getAuth().equals(Demande.ACCEPTE) ? "acceptee" : "refusee"));
                             notification.setUrl("/mes-demandes/recus");
                             notification.setUtilisateur(recepteur);
+                            utilisateurDao.save(recepteur);
+                            utilisateurDao.save(emetteur);
                             notifDao.save(notification);
                             return;
 
@@ -705,6 +713,8 @@ public class XmlHelper {
                             notification.setMessage("Proposition recus de la part de: " + emetMail);
                             notification.setUrl("/mes-proposition/recus");
                             notification.setUtilisateur(recepteur);
+                            utilisateurDao.save(recepteur);
+                            utilisateurDao.save(emetteur);
                             notifDao.save(notification);
                             System.out.println("Done.");
                         } else if (document.getElementsByTagName("Accep").getLength() > 0) {
@@ -769,6 +779,8 @@ public class XmlHelper {
                                     notification.setMessage("vous avez eu une reponse apropos de votre Proposition avec: " + emetMail);
                                     notification.setUrl("/mes-proposition/envoye");
                                     notification.setUtilisateur(recepteur);
+                                    utilisateurDao.save(recepteur);
+                                    utilisateurDao.save(emetteur);
                                     notifDao.save(notification);
                                     System.out.println("Done.");
                                 }
@@ -777,6 +789,11 @@ public class XmlHelper {
                         }
                     }
                 }
+
+                utilisateurDao.save(recepteur);
+                utilisateurDao.save(emetteur);
+                fichier.setEmetteur(emetteur);
+                fichier.setRecepteur(recepteur);
                 fichier.setMessages(messageList);
                 fichierDao.save(fichier);
             }
