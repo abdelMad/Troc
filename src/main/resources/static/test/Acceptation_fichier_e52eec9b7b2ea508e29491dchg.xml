@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Fichier>
+    <Header>
+        <FicID>e52eec9b7b2ea508e29491dchg</FicID>
+        <NmIE>bubu@gmail.com</NmIE>
+        <NmIR>MADIH</NmIR>
+        <NumAuto>ad23468b-f4ec-40a7-b2k3-4208efbc8472</NumAuto>
+        <MailExp>bubu@gmail.com</MailExp>
+        <MailDest>abdelmoghit.madih@gmail.com</MailDest>
+    </Header>
+    <Body>
+        <CollMess NbOfTxs="1">
+            <Message MsgId="b50ce58d1095dcf7d7f293b8545cb79d">
+                <Dte>2018-11-15 00:00:00.0</Dte>
+                <DureeValideMsg>20</DureeValideMsg>
+                <Accep>
+                    <MessageValid>message a ajouter apres</MessageValid>
+                </Accep>
+            </Message>
+        </CollMess>
+    </Body>
+</Fichier>

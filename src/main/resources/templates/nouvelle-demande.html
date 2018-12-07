@@ -58,7 +58,7 @@
                             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
                             <h4><i th:class="${(alertType == 'success')?'icon fa fa-check':'icon fa fa-close'}"></i> <span
                                     th:text="${(alertType == 'success' ? 'Ajout effectué' : 'Erreur')}"></span></h4>
-                            <span th:text="${alertMsg}"></span>
+                            <span th:utext="${alertMsg}"></span>
                         </div>
                     </div>
 

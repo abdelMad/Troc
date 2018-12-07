@@ -32,15 +32,15 @@
                     <li class="dropdown notifications-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             <i class="fa fa-bell-o"></i>
-                            <span class="label label-warning" th:text="${session.notifs.size()}"></span>
+                            <span th:if="${session.notifsCount != 0}" class="label label-warning" th:text="${session.notifs.size()}"></span>
                         </a>
                         <ul class="dropdown-menu">
-                            <li class="header" th:text="${'Vous avez '+ session.notifs.size() +' notification(s)'}"></li>
+                            <li class="header" th:text="${'Vous avez '+ session.notifsCount +' nouvelle(s) notification(s)'}"></li>
                             <li>
                                 <!-- inner menu: contains the actual data -->
                                 <ul class="menu">
                                     <li th:each="n : ${session.notifs}">
-                                        <a th:href="${n.url}">
+                                        <a th:href="${n.url}" th:data-notif="${n.id}" class="notif">
                                             <i class="fa fa-warning text-yellow"></i> [[ ${n.message} ]]
                                         </a>
                                     </li>

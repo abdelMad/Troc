@@ -1,0 +1,105 @@
+<Fichier>
+  <Header>
+    <FicID>string</FicID>
+    <NmIE>string</NmIE>
+    <NmIR>string</NmIR>
+    <!--Optional:-->
+    <NumAuto>string</NumAuto>
+    <!--Optional:-->
+    <DureeValidAuto>string</DureeValidAuto>
+    <!--Optional:-->
+    <MailDest>string</MailDest>
+    <!--Optional:-->
+    <MailExp>string</MailExp>
+  </Header>
+  <Body>
+    <CollMess NbOfTxs="anySimpleType">
+      <!--1 or more repetitions:-->
+      <Message MsgId="string" ReponseA="string">
+        <Dte>string</Dte>
+        <DureeValideMsg>string</DureeValideMsg>
+        <!--You have a CHOICE of the next 4 items at this level-->
+        <Prop>
+          <TitreP>string</TitreP>
+          <!--Optional:-->
+          <Offre>
+            <!--1 or more repetitions:-->
+            <Objet>
+              <Type>string</Type>
+              <Description>
+                <!--1 or more repetitions:-->
+                <Parametre>
+                  <Nom>string</Nom>
+                  <Valeur>string</Valeur>
+                </Parametre>
+              </Description>
+            </Objet>
+          </Offre>
+          <!--Optional:-->
+          <Demande>
+            <!--1 or more repetitions:-->
+            <Objet>
+              <Type>string</Type>
+              <Description>
+                <!--1 or more repetitions:-->
+                <Parametre>
+                  <Nom>string</Nom>
+                  <Valeur>string</Valeur>
+                </Parametre>
+              </Description>
+            </Objet>
+          </Demande>
+        </Prop>
+        <Auth>
+          <Rep>
+            <!--You have a CHOICE of the next 2 items at this level-->
+            <AccAuth>string</AccAuth>
+            <RefAuth>string</RefAuth>
+          </Rep>
+        </Auth>
+        <Dmd>
+          <DescDmd>string</DescDmd>
+          <DateDebut>string</DateDebut>
+          <DateFin>string</DateFin>
+        </Dmd>
+        <Accep>
+          <!--You have a CHOICE of the next 2 items at this level-->
+          <MessageValid>string</MessageValid>
+          <ContreProp>
+            <Prop>
+              <TitreP>string</TitreP>
+              <!--Optional:-->
+              <Offre>
+                <!--1 or more repetitions:-->
+                <Objet>
+                  <Type>string</Type>
+                  <Description>
+                    <!--1 or more repetitions:-->
+                    <Parametre>
+                      <Nom>string</Nom>
+                      <Valeur>string</Valeur>
+                    </Parametre>
+                  </Description>
+                </Objet>
+              </Offre>
+              <!--Optional:-->
+              <Demande>
+                <!--1 or more repetitions:-->
+                <Objet>
+                  <Type>string</Type>
+                  <Description>
+                    <!--1 or more repetitions:-->
+                    <Parametre>
+                      <Nom>string</Nom>
+                      <Valeur>string</Valeur>
+                    </Parametre>
+                  </Description>
+                </Objet>
+              </Demande>
+            </Prop>
+          </ContreProp>
+        </Accep>
+      </Message>
+    </CollMess>
+  </Body>
+</Fichier>

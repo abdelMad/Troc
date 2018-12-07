@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Fichier>
+    <Header>
+        <FicID>54e306e8a87abecabf2e870f5bfdbd9b</FicID>
+        <NmIE>bubu@gmail.com</NmIE>
+        <NmIR>MADIH</NmIR>
+        <NumAuto>ad23468b-f4ec-40a7-b2k3-4208efbc8472</NumAuto>
+        <MailDest>abdelmoghit.madih@gmail.com</MailDest>
+        <MailExp>bubu@gmail.com</MailExp>
+    </Header>
+    <Body>
+        <CollMess NbOfTxs="2">
+            <Message MsgId="b50ce58d1095dcf7d7f293b8545cb79d">
+                <Dte>2018-11-15 00:00:00.0</Dte>
+                <DureeValideMsg>20</DureeValideMsg>
+                <Accep>
+                    <ContreProp>
+                        <Prop>
+                            <TitreP>qwed</TitreP>
+                            <Offre>
+                                <Objet>
+                                    <Type>motor</Type>
+                                    <Description>
+                                        <Parametre>
+                                            <Nom>quad</Nom>
+                                            <Valeur>1200</Valeur>
+                                        </Parametre>
+                                    </Description>
+                                </Objet>
+                            </Offre>
+                        </Prop>
+                    </ContreProp>
+                </Accep>
+            </Message>
+            <Message MsgId="f640d7344ccbf625d1bd20e34egc9a32">
+                <Dte>2018-11-15 00:00:00.0</Dte>
+                <DureeValideMsg>20</DureeValideMsg>
+                <Accep>
+                    <ContreProp>
+                        <Prop>
+                            <TitreP>sasa</TitreP>
+                            <Offre>
+                                <Objet>
+                                    <Type>sisi</Type>
+                                    <Description>
+                                        <Parametre>
+                                            <Nom>sousou</Nom>
+                                            <Valeur>123</Valeur>
+                                        </Parametre>
+                                    </Description>
+                                </Objet>
+                            </Offre>
+                        </Prop>
+                    </ContreProp>
+                </Accep>
+            </Message>
+        </CollMess>
+    </Body>
+</Fichier>

@@ -186,14 +186,25 @@ public class TrocController {
                 Troc troc = new Troc();
                 troc.setTitre(reponsesProp.getString("contrePropTitre"));
                 troc.setParent(trocSrc);
+                System.out.println("********");
+                System.out.println("IsIn? "+isIn);
+                System.out.println("********");
                 if (!isIn) {
                     fichierSrc = msgSrc.getFichier();
                     if(fichierSrc.isStatusProp())
                         return "[\"ok\"]";
                     fichierSrc.setStatusProp(true);
+
+                    System.out.println("********");
+                    System.out.println("status fichier: "+fichierSrc.isStatusProp());
+                    System.out.println("id fichier: "+fichierSrc.getFicId());
+                    System.out.println("********");
+
                     fichier.setEmetteur(fichierSrc.getRecepteur());
                     fichier.setRecepteur(fichierSrc.getEmetteur());
                     fichierDao.save(fichier);
+                    fichierDao.save(fichierSrc);
+
                     isIn = true;
                 }
 
@@ -234,15 +245,25 @@ public class TrocController {
                 message.setDateExpiration(calendar.getTime());
                 messages.add(message);
             } else if (reponsesProp.getString("propsType").equals("msg")) {
+                System.out.println("********");
+                System.out.println("IsIn? "+isIn);
+                System.out.println("********");
                 if (!isIn) {
                     Message msgSrc = messageDao.findById(reponsesProp.getInt("msg")).get();
                     fichierSrc = msgSrc.getFichier();
                     if(fichierSrc.isStatusProp())
                         return "[\"ok\"]";
+                    fichierSrc.setStatusProp(true);
+                    System.out.println("********");
+                    System.out.println("status fichier: "+fichierSrc.isStatusProp());
+                    System.out.println("id fichier: "+fichierSrc.getFicId());
+                    System.out.println("********");
+
                     fichier.setEmetteur(msgSrc.getFichier().getRecepteur());
                     fichier.setRecepteur(msgSrc.getFichier().getEmetteur());
                     fichier.setStatusProp(false);
                     fichierDao.save(fichier);
+                    fichierDao.save(fichierSrc);
                     isIn = true;
                 }
 

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Fichier>
+    <Header>
+        <FicID>596df205f8234baa243f3f13fsdfsdfsdf</FicID>
+        <NmIE>test</NmIE>
+        <NmIR>MADIHI</NmIR>
+        <NumAuto>j49fjf9-c49d-4902-ew23-6ac732bf8db0</NumAuto>
+        <MailDest>abdelmoghit.madih@gmail.com</MailDest>
+        <MailExp>blabla@gmail.com</MailExp>
+    </Header>
+    <Body>
+        <CollMess NbOfTxs="1">
+            <Message MsgId="mfb633ecf-5b52-4d2a-8bb7-8f47188db806">
+                <Dte>21/11/2018</Dte>
+                <DureeValideMsg>20</DureeValideMsg>
+                <Auth>
+                    <Rep>
+                        <AccAuth>Demande accepte merc</AccAuth>
+                    </Rep>
+                </Auth>
+            </Message>
+        </CollMess>
+    </Body>
+</Fichier>
