@@ -82,7 +82,7 @@
                                     <td th:if="${propRecus == false}" th:text="${msg.recepteur.email}"></td>
                                     <td th:if="${propRecus == true}" th:text="${msg.emetteur.email}"></td>
                                     <td th:text="${msg.getMessages().size()}"></td>
-                                    <td th:text="${msg.dateCreation}"></td>
+                                    <td th:text="${#dates.format(msg.dateCreation, 'dd/MM/yyyy')}"></td>
                                     <td>
                                         <p th:if="${msg.statusProp == false}">En Attente de
                                             traitement</p>

@@ -612,6 +612,10 @@ public class XmlHelper {
                             String dateDebut = demandeElement.getElementsByTagName("DateDebut").item(0).getTextContent();
                             String dateFin = demandeElement.getElementsByTagName("DateFin").item(0).getTextContent();
                             String descCmd = demandeElement.getElementsByTagName("DescDmd").item(0).getTextContent();
+                            System.out.println("**-->"+dateDebut.length());
+                            System.out.println("**-->"+dateFin.length());
+                            System.out.println("**-->"+descCmd.length());
+                            System.out.println((dateDebut.length() > 8 && dateFin.length() > 8 && descCmd.length() > 1 && descCmd.length() <= 1000));
                             if (dateDebut.length() > 8 && dateFin.length() > 8 && descCmd.length() > 1 && descCmd.length() <= 1000) {
 
                                 Demande demande = new Demande();

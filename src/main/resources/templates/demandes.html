@@ -74,7 +74,7 @@
                                     <th>Date debut</th>
                                     <th>Date fin</th>
                                     <th>Status</th>
-                                    <th th:if="${dmdRecus==true}">Actions</th>
+                                    <th>Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -84,23 +84,29 @@
                                     <td th:text="${msg.getMessages().get(0).demande.description}"></td>
                                     <td th:text="${#dates.format(msg.getMessages().get(0).demande.dateDebut, 'dd/MM/yyyy')}"></td>
                                     <td th:text="${#dates.format(msg.getMessages().get(0).demande.dateFin, 'dd/MM/yyyy')}"></td>
-                                    <td>
+                                    <td th:if="${msg.getMessages().get(0).demande.dateFin>=#dates.createNow()}">
                                         <p th:if="${msg.getMessages().get(0).demande.auth == '0'}">En Attente de
                                             validation</p>
                                         <p th:if="${msg.getMessages().get(0).demande.auth == '1'}">Acceptée</p>
                                         <p th:if="${msg.getMessages().get(0).demande.auth == '-1'}">Refusée</p>
                                     </td>
+                                    <td th:if="${msg.getMessages().get(0).demande.dateFin<#dates.createNow()}">
+                                        <p>Expirée</p>
+                                    </td>
                                     <td>
-                                        <div th:if="${dmdRecus==true and msg.getMessages().get(0).demande.auth == '0'}">
-                                            <button class="btn btn-success btn-action" data-action="accepte"
+                                        <div th:if="${msg.getMessages().get(0).demande.dateFin>=#dates.createNow() and dmdRecus==true and msg.getMessages().get(0).demande.auth == '0'}">
+                                            <button th:if="${dmdRecus==true}" class="btn btn-success btn-action" data-action="accepte"
                                                     th:data-dmd-id="${msg.messages.get(0).demande.id}"
                                                     style="margin-right: 10px"><i class="fa fa-check-square-o"></i>
                                             </button>
-                                            <button class="btn btn-danger btn-action" data-action="refuse"
+                                            <button th:if="${dmdRecus==true}" class="btn btn-danger btn-action" data-action="refuse"
                                                     th:data-dmd-id="${msg.messages.get(0).demande.id}">
                                                 <i class="fa fa-times"></i>
                                             </button>
                                         </div>
+                                        <a th:href="${'/generate-xml-demande/'+msg.id}" target="_blank" class="btn btn-default generer-xml" th:data-fic="${msg.id}" title="Genérer le fichier">
+                                            <i class="fa fa-download"></i>
+                                        </a>
                                     </td>
 
                                 </tr>

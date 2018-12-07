@@ -312,4 +312,16 @@ jQuery(function ($) {
         })
     }
 
+    var $generer = $('.generer-xml');
+    if($generer.length){
+        // $generer.on('click',function (e) {
+        //     e.preventDefault();
+        //     var self = $(this);
+        //     util.jsonAjax('/genrer-fichier',JSON.stringify([self.data('fic')]),function (data) {
+        //         console.log(data);
+        //         location.href = self.attr('href');
+        //     })
+        // })
+    }
+
 });

@@ -85,7 +85,7 @@
                                                 <div class="box box-success box-solid">
                                                     <div class="box-header with-border">
                                                         <h3 class="box-title"
-                                                            th:text="${'Proposition: '+prop.troc.titre}"></h3>
+                                                            th:text="${prop.troc.titre == null? 'Proposition':'Proposition: ' + prop.troc.titre }"></h3>
 
                                                         <div class="box-tools pull-right">
                                                             <button type="button" class="btn btn-box-tool"
@@ -119,12 +119,19 @@
                                                         </table>
                                                     </div>
                                                     <div class="box-footer">
-                                                        <button class="btn btn-info rep-msg"th:data-target="${'#rep-msg-box-'+prop.troc.id}" >Repondre par message</button>
-                                                        <button class="btn btn-info rep-contre-prop" th:data-target="${'#contre-prop-box-'+prop.troc.id}">Repondre par contre proposition</button>
+                                                        <button class="btn btn-info rep-msg"
+                                                                th:data-target="${'#rep-msg-box-'+prop.troc.id}">
+                                                            Repondre par message
+                                                        </button>
+                                                        <button class="btn btn-info rep-contre-prop"
+                                                                th:data-target="${'#contre-prop-box-'+prop.troc.id}">
+                                                            Repondre par contre proposition
+                                                        </button>
                                                     </div>
                                                     <!-- /.box-body -->
                                                 </div>
-                                                <div class="box box-success " style="display: none" th:id="${'contre-prop-box-'+prop.troc.id}">
+                                                <div class="box box-success " style="display: none"
+                                                     th:id="${'contre-prop-box-'+prop.troc.id}">
                                                     <div class="box-header with-border">
                                                         <h4 class="box-title prop-title">Contre proposition</h4>
                                                     </div>
@@ -178,7 +185,8 @@
                                                     </div>
                                                     <!-- /.box-body -->
                                                 </div>
-                                                <div class="box box-success " style="display: none" th:id="${'rep-msg-box-'+prop.troc.id}">
+                                                <div class="box box-success " style="display: none"
+                                                     th:id="${'rep-msg-box-'+prop.troc.id}">
                                                     <div class="box-header with-border">
                                                         <h4 class="box-title prop-title">Message</h4>
                                                     </div>

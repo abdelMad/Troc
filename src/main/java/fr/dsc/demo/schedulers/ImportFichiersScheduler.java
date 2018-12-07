@@ -17,11 +17,10 @@ public class ImportFichiersScheduler {
 
     @Autowired
     FichierDao fichierDao;
-    private int cpt = 0;
     @Autowired
     private XmlHelper xmlHelper;
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRate = 120000)
     public void process() {
         try {
             ClassPathResource cpr = new ClassPathResource("/static/imports/");

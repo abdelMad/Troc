@@ -15,12 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.net.URLConnection;
 import java.util.*;
 
 @Controller
@@ -52,7 +53,7 @@ public class DemandeController {
     String checkUtilisateur(@RequestBody String email,HttpServletRequest request){
         if(utilisateurDao.existsByEmail(email).intValue() == 0)
             return "[\"0\"]";
-        if(!demandeDao.getNumAuthByEmail(((Utilisateur) request.getSession().getAttribute("utilisateur")).getEmail(),utilisateurDao.findByEmail(email).getEmail()).isEmpty())
+            if(!demandeDao.getNumAuthByEmail(((Utilisateur) request.getSession().getAttribute("utilisateur")).getEmail(),utilisateurDao.findByEmail(email).getEmail()).isEmpty())
             return "[\"-1\"]";
 
 
@@ -167,5 +168,47 @@ public class DemandeController {
         }
         return "[\"ko\"]";
 
+    }
+
+    @GetMapping("/generate-xml-demande/{fic}")
+    public void genererFichier(@PathVariable(value = "fic") String ficId, Model model, HttpServletResponse response){
+        try {
+            Optional<Fichier> optionalFichier = fichierDao.findById(Integer.parseInt(ficId));
+            if (optionalFichier.isPresent()) {
+                Fichier fichier = optionalFichier.get();
+                String xmlString = xmlHelper.creerDemandeXml(fichier);
+                xmlHelper.creerFichierXml("download_" + fichier.getId()+".xml", xmlString);
+                ClassPathResource cpr = new ClassPathResource("/static/exports/download_" + fichier.getId()+".xml");
+                File file = cpr.getFile();
+                String mimeType = URLConnection.guessContentTypeFromName(file.getName());
+                if (mimeType == null) {
+                    System.out.println("mimetype is not detectable, will take default");
+                    mimeType = "application/octet-stream";
+                }
+
+                System.out.println("mimetype : " + mimeType);
+
+                response.setContentType(mimeType);
+
+        /* "Content-Disposition : inline" will show viewable types [like images/text/pdf/anything viewable by browser] right on browser
+            while others(zip e.g) will be directly downloaded [may provide save as popup, based on your browser setting.]*/
+                response.setHeader("Content-Disposition", String.format("inline; filename=\"" + file.getName() + "\""));
+
+
+                /* "Content-Disposition : attachment" will be directly download, may provide save as popup, based on your browser setting*/
+                //response.setHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", file.getName()));
+
+                response.setContentLength((int) file.length());
+
+                InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
+
+                //Copy bytes from source to destination(outputstream in this example), closes both streams.
+                FileCopyUtils.copy(inputStream, response.getOutputStream());
+
+                file.delete();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
